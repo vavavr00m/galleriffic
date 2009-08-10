@@ -5,21 +5,17 @@
  * Licensed under the MIT License:
  *   http://www.opensource.org/licenses/mit-license.php
  *
- * Thanks to Taku Sano (Mikage Sawatari), whose history plugin I adapted to work with Galleriffic
- * Modified by Ghismo (ghismo.com) to disable the location rewrite 
+ * Much thanks to primary contributer Ponticlaro (http://www.ponticlaro.com)
  */
 ;(function($) {
 
 	// Write noscript style
 	document.write("<style type='text/css'>.noscript{display:none}</style>");
 
-	var ver = 'galleriffic-1.0';
+	var ver = 'galleriffic-1.1';
 	var galleryOffset = 0;
 	var galleries = [];
-	var allImages = [];	
-	var historyCurrentHash;
-	var historyBackStack;
-	var historyForwardStack;
+	var allImages = [];
 	var isFirst = false;
 	var dontCheck = false;
 	var isInitialized = false;
@@ -52,24 +48,9 @@
 		return 0;
 	}
 	
-	function getIndex(gallery, hash) {
-		return hash-gallery.offset;
-	}
-	
-	function clickHandler(e, gallery, link) {
-		gallery.pause();
 
-		if (!gallery.settings.enableHistory) {
-			var hash = getHashFromString(link.href);
-			if (hash >= 0) {
-				var index = getIndex(gallery, hash);
-				if (index >= 0)
-					gallery.goto(index);
-			}
-			e.preventDefault();
-		}
-	}
 
+/*
 	function historyCallback() {
 		// Using present location.hash always (seems to work, unlike the hash argument passed to this callback)
 		var hash = getHash();
@@ -81,70 +62,7 @@
 		var index = hash-gallery.offset;
 		gallery.goto(index);
 	}
-	
-	function historyInit() {
-		if (isInitialized) return;
-		isInitialized = true; 
-
-		var current_hash = location.hash; //(enableHistory) ? location.hash : currentIndexHash; // Ghismo
-
-		historyCurrentHash = current_hash;
-		if ($.browser.msie) {
-			// To stop the callback firing twice during initilization if no hash present
-			if (historyCurrentHash == '') {
-				historyCurrentHash = '#';
-			}
-		} else if ($.browser.safari) {
-			// etablish back/forward stacks
-			historyBackStack = [];
-			historyBackStack.length = history.length;
-			historyForwardStack = [];
-			isFirst = true;
-		}
-
-		setInterval(function() { historyCheck(); }, 100);
-	}
-	
-	function historyAddHistory(hash) {
-		// This makes the looping function do something
-		historyBackStack.push(hash);
-		historyForwardStack.length = 0; // clear forwardStack (true click occured)
-		isFirst = true;
-	}
-	
-	function historyCheck() {
-		if ($.browser.safari) {
-			if (!dontCheck) {
-				var historyDelta = history.length - historyBackStack.length;
-				
-				if (historyDelta) { // back or forward button has been pushed
-					isFirst = false;
-					if (historyDelta < 0) { // back button has been pushed
-						// move items to forward stack
-						for (var i = 0; i < Math.abs(historyDelta); i++) historyForwardStack.unshift(historyBackStack.pop());
-					} else { // forward button has been pushed
-						// move items to back stack
-						for (var i = 0; i < historyDelta; i++) historyBackStack.push(historyForwardStack.shift());
-					}
-					var cachedHash = historyBackStack[historyBackStack.length - 1];
-					if (cachedHash != undefined) {
-						historyCurrentHash = location.hash; // (enableHistory) ? location.hash : currentIndexHash; // Ghismo
-						historyCallback();
-					}
-				} else if (historyBackStack[historyBackStack.length - 1] == undefined && !isFirst) {
-					historyCallback();
-					isFirst = true;
-				}
-			}
-		} else {
-			// otherwise, check for location.hash
-			var current_hash = location.hash; // (enableHistory) ? location.hash : currentIndexHash; // Ghismo
-			if(current_hash != historyCurrentHash) {
-				historyCurrentHash = current_hash;
-				historyCallback();
-			}
-		}
-	}
+*/	
 
 	var defaults = {
 		delay:                  3000,
@@ -166,7 +84,7 @@
 		prevPageLinkText:       '&lsaquo; Prev',
 		enableHistory:          false,
 		autoStart:              false,
-		onChange:               undefined, // accepts a delegate like such: function(prevIndex, nextIndex) { ... }
+		onSlideChange:          undefined, // accepts a delegate like such: function(prevIndex, nextIndex) { ... }
 		onTransitionOut:        undefined, // accepts a delegate like such: function(callback) { ... }
 		onTransitionIn:         undefined, // accepts a delegate like such: function() { ... }
 		onPageTransitionOut:    undefined, // accepts a delegate like such: function(callback) { ... }
@@ -178,6 +96,24 @@
 		$.extend(this, {
 			ver: function() {
 				return ver;
+			},
+
+			getIndex: function(hash) {
+				return hash-this.offset;
+			},
+
+			clickHandler: function(e, link) {
+				this.pause();
+
+				if (!this.enableHistory) {
+					var hash = getHashFromString(link.href);
+					if (hash >= 0) {
+						var index = this.getIndex(hash);
+						if (index >= 0)
+							this.goto(index);
+					}
+					e.preventDefault();
+				}
 			},
 
 			initializeThumbs: function() {
@@ -200,7 +136,7 @@
 					$aThumb.attr('rel', 'history');
 					$aThumb.attr('href', '#'+hash);
 					$aThumb.click(function(e) {
-						clickHandler(e, gallery, this);
+						gallery.clickHandler(e, this);
 					});
 				});
 				return this;
@@ -209,7 +145,7 @@
 			isPreloadComplete: false,
 
 			preloadInit: function() {
-				if (this.settings.preloadAhead == 0) return this;
+				if (this.preloadAhead == 0) return this;
 				
 				this.preloadStartIndex = this.currentIndex;
 				var nextIndex = this.getNextIndex(this.preloadStartIndex);
@@ -235,7 +171,7 @@
 				var preloadCount = currentIndex - startIndex;
 				if (preloadCount < 0)
 					preloadCount = this.data.length-1-startIndex+currentIndex;
-				if (this.settings.preloadAhead >= 0 && preloadCount > this.settings.preloadAhead) {
+				if (this.preloadAhead >= 0 && preloadCount > this.preloadAhead) {
 					// Do this in order to keep checking for relocated start index
 					setTimeout(function() { gallery.preloadRecursive(startIndex, currentIndex); }, 500);
 					return this;
@@ -311,24 +247,24 @@
 					if (this.$controlsContainer) {
 						this.$controlsContainer
 							.find('div.ss-controls a').removeClass().addClass('play')
-							.attr('title', this.settings.playLinkText)
+							.attr('title', this.playLinkText)
 							.attr('href', '#play')
-							.html(this.settings.playLinkText);
+							.html(this.playLinkText);
 					}
 				} else {
-					this.ssAdvance();
+					// this.ssAdvance();
 
 					var gallery = this;
 					this.interval = setInterval(function() {
 						gallery.ssAdvance();
-					}, this.settings.delay);
+					}, this.delay);
 					
 					if (this.$controlsContainer) {
 						this.$controlsContainer
 							.find('div.ss-controls a').removeClass().addClass('pause')
-							.attr('title', this.settings.pauseLinkText)
+							.attr('title', this.pauseLinkText)
 							.attr('href', '#pause')
-							.html(this.settings.pauseLinkText);
+							.html(this.pauseLinkText);
 					}
 				}
 
@@ -340,15 +276,10 @@
 				var nextHash = this.data[nextIndex].hash;
 
 				// Seems to be working on both FF and Safari
-				if (this.settings.enableHistory)
-					location.href = '#'+nextHash;
+				if (this.enableHistory)
+					$.historyLoad(nextHash);
 				else
 					this.goto(nextIndex);
-
-				// IE we need to explicity call goto
-				//if ($.browser.msie) {
-				//	this.goto(nextIndex);
-				//}
 
 				return this;
 			},
@@ -357,8 +288,8 @@
 				if (index < 0) index = 0;
 				else if (index >= this.data.length) index = this.data.length-1;
 				
-				if (this.settings.onChange)
-					this.settings.onChange(this.currentIndex, index);
+				if (this.onSlideChange)
+					this.onSlideChange(this.currentIndex, index);
 				
 				this.currentIndex = index;
 				this.preloadRelocate(index);
@@ -403,8 +334,8 @@
 					}
 				}
 
-				if (this.settings.onTransitionOut) {
-					this.settings.onTransitionOut(transitionOutCallback);
+				if (this.onTransitionOut) {
+					this.onTransitionOut(transitionOutCallback);
 				} else {
 					this.$transitionContainers.hide();
 					transitionOutCallback();
@@ -451,12 +382,12 @@
 						.find('a')
 						.append(image)
 						.click(function(e) {
-							clickHandler(e, gallery, this);
+							gallery.clickHandler(e, this);
 						});
 				}
 
-				if (this.settings.onTransitionIn)
-					this.settings.onTransitionIn();
+				if (this.onTransitionIn)
+					this.onTransitionIn();
 				else
 					this.$transitionContainers.show();
 
@@ -465,7 +396,7 @@
 
 			syncThumbs: function() {
 				if (this.$thumbsContainer) {
-					var page = Math.floor(this.currentIndex / this.settings.numThumbs);
+					var page = Math.floor(this.currentIndex / this.numThumbs);
 					if (page != this.currentPage) {
 						this.currentPage = page;
 						this.updateThumbs();
@@ -486,15 +417,15 @@
 					gallery.rebuildThumbs();
 
 					// Transition In the thumbsContainer
-					if (gallery.settings.onPageTransitionIn)
-						gallery.settings.onPageTransitionIn();
+					if (gallery.onPageTransitionIn)
+						gallery.onPageTransitionIn();
 					else
 						gallery.$thumbsContainer.show();
 				};
 
 				// Transition Out the thumbsContainer
-				if (this.settings.onPageTransitionOut) {
-					this.settings.onPageTransitionOut(transitionOutCallback);
+				if (this.onPageTransitionOut) {
+					this.onPageTransitionOut(transitionOutCallback);
 				} else {
 					this.$thumbsContainer.hide();
 					transitionOutCallback();
@@ -508,20 +439,20 @@
 				if (this.currentPage < 0)
 					this.currentPage = 0;
 				
-				var needsPagination = this.data.length > this.settings.numThumbs;
+				var needsPagination = this.data.length > this.numThumbs;
 
 				// Rebuild top pager
 				var $topPager = this.$thumbsContainer.find('div.top');
 				if ($topPager.length == 0)
 					$topPager = this.$thumbsContainer.prepend('<div class="top pagination"></div>').find('div.top');
 
-				if (needsPagination && this.settings.enableTopPager) {
+				if (needsPagination && this.enableTopPager) {
 					$topPager.empty();
 					this.buildPager($topPager);
 				}
 
 				// Rebuild bottom pager
-				if (needsPagination && this.settings.enableBottomPager) {
+				if (needsPagination && this.enableBottomPager) {
 					var $bottomPager = this.$thumbsContainer.find('div.bottom');
 					if ($bottomPager.length == 0)
 						$bottomPager = this.$thumbsContainer.append('<div class="bottom pagination"></div>').find('div.bottom');
@@ -531,8 +462,8 @@
 					this.buildPager($bottomPager);
 				}
 
-				var startIndex = this.currentPage*this.settings.numThumbs;
-				var stopIndex = startIndex+this.settings.numThumbs-1;
+				var startIndex = this.currentPage*this.numThumbs;
+				var stopIndex = startIndex+this.numThumbs-1;
 				if (stopIndex >= this.data.length)
 					stopIndex = this.data.length-1;
 
@@ -555,12 +486,12 @@
 
 			buildPager: function(pager) {
 				var gallery = this;
-				var startIndex = this.currentPage*this.settings.numThumbs;
+				var startIndex = this.currentPage*this.numThumbs;
 				
 				// Prev Page Link
 				if (this.currentPage > 0) {
-					var prevPage = startIndex - this.settings.numThumbs;
-					pager.append('<a rel="history" href="#'+this.data[prevPage].hash+'" title="'+this.settings.prevPageLinkText+'">'+this.settings.prevPageLinkText+'</a>');
+					var prevPage = startIndex - this.numThumbs;
+					pager.append('<a rel="history" href="#'+this.data[prevPage].hash+'" title="'+this.prevPageLinkText+'">'+this.prevPageLinkText+'</a>');
 				}
 
 				// Page Index Links
@@ -570,19 +501,19 @@
 					if (i == this.currentPage)
 						pager.append('<span class="current">'+pageNum+'</span>');
 					else if (i>=0 && i<this.numPages) {
-						var imageIndex = i*this.settings.numThumbs;
+						var imageIndex = i*this.numThumbs;
 						pager.append('<a rel="history" href="#'+this.data[imageIndex].hash+'" title="'+pageNum+'">'+pageNum+'</a>');
 					}
 				}
 
 				// Next Page Link
-				var nextPage = startIndex+this.settings.numThumbs;
+				var nextPage = startIndex+this.numThumbs;
 				if (nextPage < this.data.length) {
-					pager.append('<a rel="history" href="#'+this.data[nextPage].hash+'" title="'+this.settings.nextPageLinkText+'">'+this.settings.nextPageLinkText+'</a>');
+					pager.append('<a rel="history" href="#'+this.data[nextPage].hash+'" title="'+this.nextPageLinkText+'">'+this.nextPageLinkText+'</a>');
 				}
 
 				pager.find('a').click(function(e) {
-					clickHandler(e, gallery, this);
+					gallery.clickHandler(e, this);
 				});
 
 				return this;
@@ -590,17 +521,16 @@
 		});
 
 		// Now initialize the gallery
-		this.settings = $.extend({}, defaults, settings);
-		//enableHistory = this.settings.enableHistory; // Ghismo
+		$.extend(this, defaults, settings);
 
 		if (this.interval)
 			clearInterval(this.interval);
 
 		this.interval = 0;
 		
-		if (this.settings.imageContainerSel) this.$imageContainer = $(this.settings.imageContainerSel);
-		if (this.settings.captionContainerSel) this.$captionContainer = $(this.settings.captionContainerSel);
-		if (this.settings.loadingContainerSel) this.$loadingContainer = $(this.settings.loadingContainerSel);
+		if (this.imageContainerSel) this.$imageContainer = $(this.imageContainerSel);
+		if (this.captionContainerSel) this.$captionContainer = $(this.captionContainerSel);
+		if (this.loadingContainerSel) this.$loadingContainer = $(this.loadingContainerSel);
 
 		// Setup the jQuery object holding each container that will be transitioned
 		this.$transitionContainers = $([]);
@@ -618,7 +548,7 @@
 		// Add this gallery to the global galleries array
 		registerGallery(this);
 
-		this.numPages = Math.ceil(this.data.length/this.settings.numThumbs);
+		this.numPages = Math.ceil(this.data.length/this.numThumbs);
 		this.currentPage = -1;
 		this.currentIndex = 0;
 		var gallery = this;
@@ -628,16 +558,16 @@
 			this.$loadingContainer.hide();
 
 		// Setup controls
-		if (this.settings.controlsContainerSel) {
-			this.$controlsContainer = $(this.settings.controlsContainerSel).empty();
+		if (this.controlsContainerSel) {
+			this.$controlsContainer = $(this.controlsContainerSel).empty();
 			
-			if (this.settings.renderSSControls) {
-				if (this.settings.autoStart) {
+			if (this.renderSSControls) {
+				if (this.autoStart) {
 					this.$controlsContainer
-						.append('<div class="ss-controls"><a href="#pause" class="pause" title="'+this.settings.pauseLinkText+'">'+this.settings.pauseLinkText+'</a></div>');
+						.append('<div class="ss-controls"><a href="#pause" class="pause" title="'+this.pauseLinkText+'">'+this.pauseLinkText+'</a></div>');
 				} else {
 					this.$controlsContainer
-						.append('<div class="ss-controls"><a href="#play" class="play" title="'+this.settings.playLinkText+'">'+this.settings.playLinkText+'</a></div>');
+						.append('<div class="ss-controls"><a href="#play" class="play" title="'+this.playLinkText+'">'+this.playLinkText+'</a></div>');
 				}
 
 				this.$controlsContainer.find('div.ss-controls a')
@@ -648,16 +578,17 @@
 					});
 			}
 		
-			if (this.settings.renderNavControls) {
+			if (this.renderNavControls) {
 				var $navControls = this.$controlsContainer
-					.append('<div class="nav-controls"><a class="prev" rel="history" title="'+this.settings.prevLinkText+'">'+this.settings.prevLinkText+'</a><a class="next" rel="history" title="'+this.settings.nextLinkText+'">'+this.settings.nextLinkText+'</a></div>')
+					.append('<div class="nav-controls"><a class="prev" rel="history" title="'+this.prevLinkText+'">'+this.prevLinkText+'</a><a class="next" rel="history" title="'+this.nextLinkText+'">'+this.nextLinkText+'</a></div>')
 					.find('div.nav-controls a')
 					.click(function(e) {
-						clickHandler(e, gallery, this);
+						gallery.clickHandler(e, this);
 					});
 			}
 		}
 
+/*
 		// Initialize history only once when the first gallery on the page is initialized
 		historyInit();
 		
@@ -666,10 +597,17 @@
 		var hashGallery = (hash >= 0) ? getGallery(hash) : 0;
 		var gotoIndex = (hashGallery && this == hashGallery) ? (hash-this.offset) : 0;
 		this.goto(gotoIndex);
+*/
+		// Verify the history plugin is available
+		if (this.enableHistory && !$.historyInit)
+			this.enableHistory = false;
 
-		if (this.settings.autoStart) {
-			
-			setTimeout(function() { gallery.play(); }, this.settings.delay);
+		if (!this.enableHistory) {
+			this.goto(0);
+		}
+
+		if (this.autoStart) {
+			setTimeout(function() { gallery.play(); }, this.delay);
 		}
 
 		// Kickoff Image Preloader after 1 second

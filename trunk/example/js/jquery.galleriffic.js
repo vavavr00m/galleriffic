@@ -97,13 +97,15 @@
 			clickHandler: function(e, link) {
 				this.pause();
 
-				var hash = getHashFromString(link.href);
-				if (hash >= 0) {
-					var index = this.getIndex(hash);
-					if (index >= 0)
-						this.goto(index);
+				if (!this.enableHistory) {
+					var hash = getHashFromString(link.href);
+					if (hash >= 0) {
+						var index = this.getIndex(hash);
+						if (index >= 0)
+							this.goto(index);
+					}
+					e.preventDefault();
 				}
-				e.preventDefault();
 			},
 
 			initializeThumbs: function() {
@@ -122,16 +124,12 @@
 						hash:hash
 					});
 
-					// Setup history
-					$aThumb.attr('rel', 'history');
-					$aThumb.attr('href', '#'+hash);
-					
-					// Only attch clickHandler when history is disabled
-					if (!gallery.enableHistory) {
-						$aThumb.click(function(e) {
+					// Setup attributes and click event handler
+					$aThumb.attr('rel', 'history')
+						.attr('href', '#'+hash)
+						.click(function(e) {
 							gallery.clickHandler(e, this);
 						});
-					}
 				});
 				return this;
 			},
@@ -379,17 +377,13 @@
 					}
 
 					// Setup image
-					var link = this.$imageContainer
+					this.$imageContainer
 						.append('<span class="image-wrapper"><a class="advance-link" rel="history" href="#'+this.data[nextIndex].hash+'" title="'+image.alt+'"></a></span>')
 						.find('a')
-						.append(image);
-						
-					// Only attch clickHandler when history is disabled
-					if (!gallery.enableHistory) {	
-						link.click(function(e) {
+						.append(image)
+						.click(function(e) {
 							gallery.clickHandler(e, this);
 						});
-					}
 				}
 
 				if (this.onTransitionIn)
@@ -518,12 +512,9 @@
 					pager.append('<a rel="history" href="#'+this.data[nextPage].hash+'" title="'+this.nextPageLinkText+'">'+this.nextPageLinkText+'</a>');
 				}
 
-				// Only attch clickHandler when history is disabled
-				if (!gallery.enableHistory) {
-					pager.find('a').click(function(e) {
-						gallery.clickHandler(e, this);
-					});
-				}
+				pager.find('a').click(function(e) {
+					gallery.clickHandler(e, this);
+				});
 
 				return this;
 			}
@@ -593,19 +584,19 @@
 			}
 		
 			if (this.renderNavControls) {
-				this.$controlsContainer.append('<div class="nav-controls"><a class="prev" rel="history" title="'+this.prevLinkText+'">'+this.prevLinkText+'</a><a class="next" rel="history" title="'+this.nextLinkText+'">'+this.nextLinkText+'</a></div>');
-
-				// Only attch clickHandler when history is disabled
-				if (!gallery.enableHistory) {
-					this.$controlsContainer.find('div.nav-controls a').click(function(e) {
+				this.$controlsContainer
+					.append('<div class="nav-controls"><a class="prev" rel="history" title="'+this.prevLinkText+'">'+this.prevLinkText+'</a><a class="next" rel="history" title="'+this.nextLinkText+'">'+this.nextLinkText+'</a></div>')
+					.find('div.nav-controls a')
+					.click(function(e) {
 						gallery.clickHandler(e, this);
 					});
-				}
 			}
 		}
 
 		// Setup gallery to show the first image
-		this.goto(0);
+		if (!this.enableHistory || !location.hash) {
+			this.goto(0);
+		}
 
 		if (this.autoStart) {
 			setTimeout(function() { gallery.play(); }, this.delay);

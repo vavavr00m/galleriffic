@@ -9,37 +9,26 @@
  */
 ;(function($) {
 
-	// Write noscript style
-	document.write("<style type='text/css'>.noscript{display:none}</style>");
+	// Hide elements with the noscript class
+	$('.noscript').hide();
 
 	var ver = 'galleriffic-1.1';
 	var galleryOffset = 0;
 	var galleries = [];
 	var allImages = [];
-	var isFirst = false;
-	var dontCheck = false;
-	var isInitialized = false;
 
-	function getHashFromString(hash) {
-		if (!hash) return -1;
-		hash = hash.replace(/^.*#/, '');
-		if (isNaN(hash)) return -1;
-		return (+hash);
-	}
+	$.galleriffic = {
+		goto: function(hash) {
+			hash = getHashFromString(hash);
+			var gallery = getGalleryForHash(hash);
+			if (!gallery) return;
 
-	function getHash() {
-		var hash = location.hash;
-		return getHashFromString(hash);
-	}
+			var index = hash-gallery.offset;
+			gallery.goto(index);
+		}
+	};
 
-	function registerGallery(gallery) {
-		galleries.push(gallery);
-
-		// update the global offset value
-		galleryOffset += gallery.data.length;
-	}
-
-	function getGallery(hash) {
+	function getGalleryForHash(hash) {
 		for (i = 0; i < galleries.length; i++) {
 			var gallery = galleries[i];
 			if (hash < (gallery.data.length+gallery.offset))
@@ -47,22 +36,25 @@
 		}
 		return 0;
 	}
-	
 
-
-/*
-	function historyCallback() {
-		// Using present location.hash always (seems to work, unlike the hash argument passed to this callback)
-		var hash = getHash();
-		if (hash < 0) return;
-
-		var gallery = getGallery(hash);
-		if (!gallery) return;
+	function getHashFromString(hash) {
+		if (typeof hash == 'number')
+			return hash;
 		
-		var index = hash-gallery.offset;
-		gallery.goto(index);
+		if (!hash) return -1;
+		
+		hash = hash.replace(/^.*#/, '');
+
+		if (isNaN(hash)) return -1;
+		return (+hash);
 	}
-*/	
+
+	function registerGallery(gallery) {
+		galleries.push(gallery);
+
+		// update the global offset value
+		galleryOffset += gallery.data.length;
+	}	
 
 	var defaults = {
 		delay:                  3000,
@@ -105,15 +97,13 @@
 			clickHandler: function(e, link) {
 				this.pause();
 
-				if (!this.enableHistory) {
-					var hash = getHashFromString(link.href);
-					if (hash >= 0) {
-						var index = this.getIndex(hash);
-						if (index >= 0)
-							this.goto(index);
-					}
-					e.preventDefault();
+				var hash = getHashFromString(link.href);
+				if (hash >= 0) {
+					var index = this.getIndex(hash);
+					if (index >= 0)
+						this.goto(index);
 				}
+				e.preventDefault();
 			},
 
 			initializeThumbs: function() {
@@ -135,9 +125,13 @@
 					// Setup history
 					$aThumb.attr('rel', 'history');
 					$aThumb.attr('href', '#'+hash);
-					$aThumb.click(function(e) {
-						gallery.clickHandler(e, this);
-					});
+					
+					// Only attch clickHandler when history is disabled
+					if (!gallery.enableHistory) {
+						$aThumb.click(function(e) {
+							gallery.clickHandler(e, this);
+						});
+					}
 				});
 				return this;
 			},
@@ -204,7 +198,7 @@
 				if (nextIndex == startIndex) {
 					this.isPreloadComplete = true;
 				} else {
-					// Use set timeout to free up thread
+					// Use setTimeout to free up thread
 					var gallery = this;
 					setTimeout(function() { gallery.preloadRecursive(startIndex, nextIndex); }, 100);
 				}
@@ -252,8 +246,6 @@
 							.html(this.playLinkText);
 					}
 				} else {
-					// this.ssAdvance();
-
 					var gallery = this;
 					this.interval = setInterval(function() {
 						gallery.ssAdvance();
@@ -277,11 +269,21 @@
 
 				// Seems to be working on both FF and Safari
 				if (this.enableHistory)
-					$.historyLoad(nextHash);
+					$.historyLoad(String(nextHash));  // At the moment, historyLoad only accepts string arguments
 				else
 					this.goto(nextIndex);
 
 				return this;
+			},
+
+			next: function() {
+				this.pause();
+				goto(this.getNextIndex(this.currentIndex));
+			},
+
+			previous: function() {
+				this.pause();
+				goto(this.getPrevIndex(this.currentIndex));
 			},
 
 			goto: function(index) {
@@ -377,13 +379,17 @@
 					}
 
 					// Setup image
-					this.$imageContainer
+					var link = this.$imageContainer
 						.append('<span class="image-wrapper"><a class="advance-link" rel="history" href="#'+this.data[nextIndex].hash+'" title="'+image.alt+'"></a></span>')
 						.find('a')
-						.append(image)
-						.click(function(e) {
+						.append(image);
+						
+					// Only attch clickHandler when history is disabled
+					if (!gallery.enableHistory) {	
+						link.click(function(e) {
 							gallery.clickHandler(e, this);
 						});
+					}
 				}
 
 				if (this.onTransitionIn)
@@ -512,9 +518,12 @@
 					pager.append('<a rel="history" href="#'+this.data[nextPage].hash+'" title="'+this.nextPageLinkText+'">'+this.nextPageLinkText+'</a>');
 				}
 
-				pager.find('a').click(function(e) {
-					gallery.clickHandler(e, this);
-				});
+				// Only attch clickHandler when history is disabled
+				if (!gallery.enableHistory) {
+					pager.find('a').click(function(e) {
+						gallery.clickHandler(e, this);
+					});
+				}
 
 				return this;
 			}
@@ -528,6 +537,11 @@
 
 		this.interval = 0;
 		
+		// Verify the history plugin is available
+		if (this.enableHistory && !$.historyInit)
+			this.enableHistory = false;
+		
+		// Select containers
 		if (this.imageContainerSel) this.$imageContainer = $(this.imageContainerSel);
 		if (this.captionContainerSel) this.$captionContainer = $(this.captionContainerSel);
 		if (this.loadingContainerSel) this.$loadingContainer = $(this.loadingContainerSel);
@@ -579,32 +593,19 @@
 			}
 		
 			if (this.renderNavControls) {
-				var $navControls = this.$controlsContainer
-					.append('<div class="nav-controls"><a class="prev" rel="history" title="'+this.prevLinkText+'">'+this.prevLinkText+'</a><a class="next" rel="history" title="'+this.nextLinkText+'">'+this.nextLinkText+'</a></div>')
-					.find('div.nav-controls a')
-					.click(function(e) {
+				this.$controlsContainer.append('<div class="nav-controls"><a class="prev" rel="history" title="'+this.prevLinkText+'">'+this.prevLinkText+'</a><a class="next" rel="history" title="'+this.nextLinkText+'">'+this.nextLinkText+'</a></div>');
+
+				// Only attch clickHandler when history is disabled
+				if (!gallery.enableHistory) {
+					this.$controlsContainer.find('div.nav-controls a').click(function(e) {
 						gallery.clickHandler(e, this);
 					});
+				}
 			}
 		}
 
-/*
-		// Initialize history only once when the first gallery on the page is initialized
-		historyInit();
-		
-		// Build image
-		var hash = getHash();
-		var hashGallery = (hash >= 0) ? getGallery(hash) : 0;
-		var gotoIndex = (hashGallery && this == hashGallery) ? (hash-this.offset) : 0;
-		this.goto(gotoIndex);
-*/
-		// Verify the history plugin is available
-		if (this.enableHistory && !$.historyInit)
-			this.enableHistory = false;
-
-		if (!this.enableHistory) {
-			this.goto(0);
-		}
+		// Setup gallery to show the first image
+		this.goto(0);
 
 		if (this.autoStart) {
 			setTimeout(function() { gallery.play(); }, this.delay);

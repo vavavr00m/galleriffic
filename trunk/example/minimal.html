@@ -15,9 +15,12 @@
 				<!-- Start Minimal Gallery Html Containers -->
 				<div id="gallery" class="content">
 					<div id="controls" class="controls"></div>
-					<div id="slideshow" class="slideshow"></div>
+					<div class="slideshow-container">
+						<div id="loading" class="loader"></div>
+						<div id="slideshow" class="slideshow"></div>
+					</div>
 				</div>
-				<div id="thumbs-min" class="navigation">
+				<div id="thumbs" class="navigation">
 					<ul class="thumbs noscript">
 						<li>
 							<a class="thumb" href="http://farm4.static.flickr.com/3261/2538183196_8baf9a8015.jpg" title="Title #0">Title #0</a>
@@ -128,7 +131,7 @@
 
 			$(document).ready(function() {				
 				// Initialize Minimal Galleriffic Gallery
-				$('#gallery').galleriffic('#thumbs-min', {
+				$('#gallery').galleriffic('#thumbs', {
 					imageContainerSel:      '#slideshow',
 					controlsContainerSel:   '#controls'
 				});

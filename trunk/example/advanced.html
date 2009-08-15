@@ -406,10 +406,10 @@
 							.eq(prevIndex).fadeTo('fast', onMouseOutOpacity).end()
 							.eq(nextIndex).fadeTo('fast', 1.0);
 					},
-//					onTransitionOut:           function(slide, caption, isSync, callback) {
-//						$('#caption').fadeTo('fast', 0.0);
-//						$('#slideshow').fadeTo('fast', 0.0, callback);
-//					},
+					onTransitionOut:           function(slide, caption, isSync, callback) {
+						slide.fadeTo(this.getDefaultTransitionDuration(isSync), 0.0, callback);
+						caption.fadeTo(this.getDefaultTransitionDuration(isSync), 0.0);
+					},
 					onTransitionIn:            function(slide, caption, isSync) {
 						var duration = this.getDefaultTransitionDuration(isSync);
 						slide.fadeTo(duration, 1.0);

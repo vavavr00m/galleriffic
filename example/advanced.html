@@ -376,19 +376,20 @@
 					prevPageLinkText:       '&lsaquo; Prev',
 					enableHistory:          true,
 					autoStart:              false,
+					syncTransitions:        true,
 					onSlideChange:          function(prevIndex, nextIndex) {
 						$('#thumbs ul.thumbs').children()
 							.eq(prevIndex).fadeTo('fast', onMouseOutOpacity).end()
 							.eq(nextIndex).fadeTo('fast', 1.0);
 					},
-					onTransitionOut:        function(callback) {
-						$('#caption').fadeTo('fast', 0.0);
-						$('#slideshow').fadeTo('fast', 0.0, callback);
-					},
-					onTransitionIn:         function() {
-						$('#slideshow').fadeTo('fast', 1.0);
-						$('#caption').fadeTo('fast', 1.0);
-					},
+//					onTransitionOut:        function(slide, caption, isSync, callback) {
+//						$('#caption').fadeTo('fast', 0.0);
+//						$('#slideshow').fadeTo('fast', 0.0, callback);
+//					},
+//					onTransitionIn:         function(slide, caption, isSync) {
+//						$('#slideshow').fadeTo('fast', 1.0);
+//						$('#caption').fadeTo('fast', 1.0);
+//					},
 					onPageTransitionOut:    function(callback) {
 						$('#thumbs ul.thumbs').fadeTo('fast', 0.0, callback);
 					},

@@ -57,30 +57,32 @@
 	}	
 
 	var defaults = {
-		delay:                  3000,
-		numThumbs:              20,
-		preloadAhead:           40, // Set to -1 to preload all images
-		enableTopPager:         false,
-		enableBottomPager:      true,
-		imageContainerSel:      '',
-		captionContainerSel:    '',
-		controlsContainerSel:   '',
-		loadingContainerSel:    '',
-		renderSSControls:       true,
-		renderNavControls:      true,
-		playLinkText:           'Play',
-		pauseLinkText:          'Pause',
-		prevLinkText:           'Previous',
-		nextLinkText:           'Next',
-		nextPageLinkText:       'Next &rsaquo;',
-		prevPageLinkText:       '&lsaquo; Prev',
-		enableHistory:          false,
-		autoStart:              false,
-		onSlideChange:          undefined, // accepts a delegate like such: function(prevIndex, nextIndex) { ... }
-		onTransitionOut:        undefined, // accepts a delegate like such: function(callback) { ... }
-		onTransitionIn:         undefined, // accepts a delegate like such: function() { ... }
-		onPageTransitionOut:    undefined, // accepts a delegate like such: function(callback) { ... }
-		onPageTransitionIn:     undefined  // accepts a delegate like such: function() { ... }
+		delay:                     3000,
+		numThumbs:                 20,
+		preloadAhead:              40, // Set to -1 to preload all images
+		enableTopPager:            false,
+		enableBottomPager:         true,
+		imageContainerSel:         '',
+		captionContainerSel:       '',
+		controlsContainerSel:      '',
+		loadingContainerSel:       '',
+		renderSSControls:          true,
+		renderNavControls:         true,
+		playLinkText:              'Play',
+		pauseLinkText:             'Pause',
+		prevLinkText:              'Previous',
+		nextLinkText:              'Next',
+		nextPageLinkText:          'Next &rsaquo;',
+		prevPageLinkText:          '&lsaquo; Prev',
+		enableHistory:             false,
+		autoStart:                 false,
+		syncTransitions:           false,
+		defaultTransitionDuration: 1000,
+		onSlideChange:             undefined, // accepts a delegate like such: function(prevIndex, nextIndex) { ... }
+		onTransitionOut:           undefined, // accepts a delegate like such: function(slide, caption, isSync, callback) { ... }
+		onTransitionIn:            undefined, // accepts a delegate like such: function(slide, caption, isSync) { ... }
+		onPageTransitionOut:       undefined, // accepts a delegate like such: function(callback) { ... }
+		onPageTransitionIn:        undefined  // accepts a delegate like such: function() { ... }
 	};
 
 	$.fn.galleriffic = function(thumbsContainerSel, settings) {
@@ -296,51 +298,79 @@
 				return this.refresh();
 			},
 			
+			getDefaultTransitionDuration: function(isSync) {
+				if (isSync)
+					return this.defaultTransitionDuration;
+				return this.defaultTransitionDuration / 2;
+			},
+			
 			refresh: function() {
 				var imageData = this.data[this.currentIndex];
 				if (!imageData)
 					return this;
+
+				// Update Controls
+				if (this.$controlsContainer) {
+					this.$controlsContainer
+						.find('div.nav-controls a.prev').attr('href', '#'+this.data[this.getPrevIndex(this.currentIndex)].hash).end()
+						.find('div.nav-controls a.next').attr('href', '#'+this.data[this.getNextIndex(this.currentIndex)].hash);
+				}
+
+				var previousSlide = this.$imageContainer.find('span.current').addClass('previous').removeClass('current');
+				var previousCaption = 0;
+
+				if (this.$captionContainer) {
+					previousCaption = this.$captionContainer.find('span.current').addClass('previous').removeClass('current');
+				}
+
+				// Perform transitions simultaneously if syncTransitions is true and the next image is already preloaded
+				var isSync = this.syncTransitions && imageData.image;
 				
 				// Flag we are transitioning
 				var isTransitioning = true;
-
 				var gallery = this;
 
 				var transitionOutCallback = function() {
 					// Flag that the transition has completed
 					isTransitioning = false;
 
-					// Update Controls
-					if (gallery.$controlsContainer) {
-						gallery.$controlsContainer
-							.find('div.nav-controls a.prev').attr('href', '#'+gallery.data[gallery.getPrevIndex(gallery.currentIndex)].hash).end()
-							.find('div.nav-controls a.next').attr('href', '#'+gallery.data[gallery.getNextIndex(gallery.currentIndex)].hash);
-					}
+					// Remove the old slide
+					previousSlide.remove();
 
-					var imageData = gallery.data[gallery.currentIndex];
+					// Remove old caption
+					if (previousCaption)
+						previousCaption.remove();
 
-					// Replace Caption
-					if (gallery.$captionContainer) {
-						gallery.$captionContainer.empty().append(imageData.caption);
-					}
-
-					if (imageData.image) {
-						gallery.buildImage(imageData.image);
-					} else {
-						// Show loading container
-						if (gallery.$loadingContainer) {
-							gallery.$loadingContainer.show();
+					if (!isSync)
+					{
+						if (imageData.image) {
+							gallery.buildImage(imageData, isSync);
+						} else {
+							// Show loading container
+							if (gallery.$loadingContainer) {
+								gallery.$loadingContainer.show();
+							}
 						}
 					}
-				}
+				};
 
-				if (this.onTransitionOut) {
-					this.onTransitionOut(transitionOutCallback);
-				} else {
-					this.$transitionContainers.hide();
+				if (previousSlide.length == 0) {
+					// For the first slide, the previous slide will be empty, so we will call the callback immediately
 					transitionOutCallback();
+				} else {
+					if (this.onTransitionOut) {
+						this.onTransitionOut(previousSlide, previousCaption, isSync, transitionOutCallback);
+					} else {
+						previousSlide.fadeTo(this.getDefaultTransitionDuration(isSync), 0.0, transitionOutCallback);
+						if (previousCaption)
+							previousCaption.fadeTo(this.getDefaultTransitionDuration(isSync), 0.0);
+					}
 				}
 
+				// Go ahead and begin transition in of next image
+				if (isSync)
+					this.buildImage(imageData, isSync);
+			
 				if (!imageData.image) {
 					var image = new Image();
 					
@@ -349,7 +379,7 @@
 						imageData.image = this;
 
 						if (!isTransitioning) {
-							gallery.buildImage(imageData.image);
+							gallery.buildImage(imageData, isSync);
 						}
 					};
 
@@ -364,32 +394,43 @@
 				return this.syncThumbs();
 			},
 			
-			buildImage: function(image) {
-				if (this.$imageContainer) {
-					this.$imageContainer.empty();
+			buildImage: function(imageData, isSync) {
+				var gallery = this;
+				var nextIndex = this.getNextIndex(this.currentIndex);
 
-					var gallery = this;
-					var nextIndex = this.getNextIndex(this.currentIndex);
-
-					// Hide the loading conatiner
-					if (this.$loadingContainer) {
-						this.$loadingContainer.hide();
-					}
-
-					// Setup image
-					this.$imageContainer
-						.append('<span class="image-wrapper"><a class="advance-link" rel="history" href="#'+this.data[nextIndex].hash+'" title="'+image.alt+'"></a></span>')
-						.find('a')
-						.append(image)
-						.click(function(e) {
-							gallery.clickHandler(e, this);
-						});
+				// Construct new hidden span for the image
+				var newSlide = this.$imageContainer
+					.append('<span class="image-wrapper current"><a class="advance-link" rel="history" href="#'+this.data[nextIndex].hash+'" title="'+imageData.title+'"></a></span>')
+					.find('span.current').css('opacity', '0');
+				
+				newSlide.find('a')
+					.append(imageData.image)
+					.click(function(e) {
+						gallery.clickHandler(e, this);
+					});
+				
+				var newCaption = 0;
+				if (this.$captionContainer) {
+					// Construct new hidden caption for the image
+					newCaption = this.$captionContainer
+						.append('<span class="image-caption current"></span>')
+						.find('span.current').css('opacity', '0')
+						.append(imageData.caption);
 				}
 
-				if (this.onTransitionIn)
-					this.onTransitionIn();
-				else
-					this.$transitionContainers.show();
+				// Hide the loading conatiner
+				if (this.$loadingContainer) {
+					this.$loadingContainer.hide();
+				}
+
+				// Transition in the new image
+				if (this.onTransitionIn) {
+					this.onTransitionIn(newSlide, newCaption, isSync);
+				} else {
+					newSlide.fadeTo(this.getDefaultTransitionDuration(isSync), 1.0);
+					if (newCaption)
+						newCaption.fadeTo(this.getDefaultTransitionDuration(isSync), 1.0);
+				}
 
 				return this;
 			},

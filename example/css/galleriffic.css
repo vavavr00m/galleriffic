@@ -34,11 +34,14 @@ div.loader {
 	height: 350px
 }
 div.slideshow {
+	position: relative;
 	clear: both;
+	padding-bottom: 12px;
 }
 div.slideshow span.image-wrapper {
-	float: left;
-	padding-bottom: 12px;
+	position: absolute;
+	top: 0;
+	left: 0;
 }
 div.slideshow a.advance-link {
 	padding: 2px;

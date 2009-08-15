@@ -21,6 +21,9 @@
 						<div id="slideshow" class="slideshow"></div>
 						<div id="caption" class="caption-container"></div>
 					</div>
+					<div id="captionToggle">
+						<a href="#toggleCaption" class="off" title="Show Caption">Show Caption</a>
+					</div>
 				</div>
 				<div id="thumbs" class="navigation">
 					<ul class="thumbs noscript">
@@ -339,24 +342,42 @@
 		</div>
 		<div id="footer">&copy; 2009 Trent Foley</div>
 		<script type="text/javascript">
-			// We only want these styles applied when javascript is enabled
-			$('div.navigation').css({'width' : '300px', 'float' : 'left'});
-			$('div.content').css('display', 'block');
+			jQuery(document).ready(function($) {
+				
+				// We only want these styles applied when javascript is enabled
+				$('div.navigation').css({'width' : '300px', 'float' : 'left'});
+				$('div.content').css('display', 'block');
 
-			// Initially set opacity on thumbs and add
-			// additional styling for hover effect on thumbs
-			var onMouseOutOpacity = 0.67;
-			$('#thumbs ul.thumbs li').css('opacity', onMouseOutOpacity)
-				.hover(
-					function () {
-						$(this).not('.selected').fadeTo('fast', 1.0);
-					}, 
-					function () {
-						$(this).not('.selected').fadeTo('fast', onMouseOutOpacity);
-					}
-				);
+				// Initially set opacity on thumbs and add
+				// additional styling for hover effect on thumbs
+				var onMouseOutOpacity = 0.67;
+				$('#thumbs ul.thumbs li').css('opacity', onMouseOutOpacity)
+					.hover(
+						function () {
+							$(this).not('.selected').fadeTo('fast', 1.0);
+						}, 
+						function () {
+							$(this).not('.selected').fadeTo('fast', onMouseOutOpacity);
+						}
+					);
 
-			$(document).ready(function() {
+				// Enable toggling of the caption
+				var captionOpacity = 0.0;
+				$('#captionToggle a').click(function(e) {
+					var link = $(this);
+					
+					var isOff = link.hasClass('off');
+					var removeClass = isOff ? 'off' : 'on';
+					var addClass = isOff ? 'on' : 'off';
+					var linkText = isOff ? 'Hide Caption' : 'Show Caption';
+					captionOpacity = isOff ? 0.7 : 0.0;
+
+					link.removeClass(removeClass).addClass(addClass).text(linkText).attr('title', linkText);
+					$('#caption span.image-caption').fadeTo(1000, captionOpacity);
+					
+					e.preventDefault();
+				});
+				
 				// Initialize Advanced Galleriffic Gallery
 				var gallery = $('#gallery').galleriffic('#thumbs', {
 					delay:                     2500,
@@ -392,13 +413,15 @@
 					onTransitionIn:            function(slide, caption, isSync) {
 						var duration = this.getDefaultTransitionDuration(isSync);
 						slide.fadeTo(duration, 1.0);
+						
+						// Position the caption at the bottom of the image and set its opacity
 						var slideImage = slide.find('img');
-						caption.width(slideImage.outerWidth())
+						caption.width(slideImage.width())
 							.css({
-								'bottom' : (slide.height() - slideImage.outerHeight()) / 2,
-								'left' : slideImage.position().left
+								'bottom' : Math.floor((slide.height() - slideImage.outerHeight()) / 2),
+								'left' : Math.floor((slide.width() - slideImage.width()) / 2) + slideImage.outerWidth() - slideImage.width()
 							})
-							.fadeTo(duration, 0.7);
+							.fadeTo(duration, captionOpacity);
 					},
 					onPageTransitionOut:       function(callback) {
 						$('#thumbs ul.thumbs').fadeTo('fast', 0.0, callback);

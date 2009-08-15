@@ -343,7 +343,7 @@
 
 					if (!isSync)
 					{
-						if (imageData.image) {
+						if (imageData.image && imageData.hash == gallery.data[gallery.currentIndex].hash) {
 							gallery.buildImage(imageData, isSync);
 						} else {
 							// Show loading container
@@ -378,7 +378,8 @@
 					image.onload = function() {
 						imageData.image = this;
 
-						if (!isTransitioning) {
+						// Only build image if the out transition has completed and we are still on the same image hash
+						if (!isTransitioning && imageData.hash == gallery.data[gallery.currentIndex].hash) {
 							gallery.buildImage(imageData, isSync);
 						}
 					};
@@ -400,7 +401,7 @@
 
 				// Construct new hidden span for the image
 				var newSlide = this.$imageContainer
-					.append('<span class="image-wrapper current"><a class="advance-link" rel="history" href="#'+this.data[nextIndex].hash+'" title="'+imageData.title+'"></a></span>')
+					.append('<span class="image-wrapper current"><a class="advance-link" rel="history" href="#'+this.data[nextIndex].hash+'" title="'+imageData.title+'">&nbsp;</a></span>')
 					.find('span.current').css('opacity', '0');
 				
 				newSlide.find('a')

@@ -16,9 +16,11 @@
 				<!-- Start Advanced Gallery Html Containers -->
 				<div id="gallery" class="content">
 					<div id="controls" class="controls"></div>
-					<div id="loading" class="loader"></div>
-					<div id="slideshow" class="slideshow"></div>
-					<div id="caption" class="embox"></div>
+					<div class="slideshow-container">
+						<div id="loading" class="loader"></div>
+						<div id="slideshow" class="slideshow"></div>
+						<div id="caption" class="caption-container"></div>
+					</div>
 				</div>
 				<div id="thumbs" class="navigation">
 					<ul class="thumbs noscript">
@@ -357,43 +359,51 @@
 			$(document).ready(function() {
 				// Initialize Advanced Galleriffic Gallery
 				var gallery = $('#gallery').galleriffic('#thumbs', {
-					delay:                  2000,
-					numThumbs:              12,
-					preloadAhead:           10,
-					enableTopPager:         true,
-					enableBottomPager:      true,
-					imageContainerSel:      '#slideshow',
-					controlsContainerSel:   '#controls',
-					captionContainerSel:    '#caption',
-					loadingContainerSel:    '#loading',
-					renderSSControls:       true,
-					renderNavControls:      true,
-					playLinkText:           'Play Slideshow',
-					pauseLinkText:          'Pause Slideshow',
-					prevLinkText:           '&lsaquo; Previous Photo',
-					nextLinkText:           'Next Photo &rsaquo;',
-					nextPageLinkText:       'Next &rsaquo;',
-					prevPageLinkText:       '&lsaquo; Prev',
-					enableHistory:          true,
-					autoStart:              false,
-					syncTransitions:        true,
-					onSlideChange:          function(prevIndex, nextIndex) {
+					delay:                     2500,
+					numThumbs:                 15,
+					preloadAhead:              10,
+					enableTopPager:            true,
+					enableBottomPager:         true,
+					imageContainerSel:         '#slideshow',
+					controlsContainerSel:      '#controls',
+					captionContainerSel:       '#caption',
+					loadingContainerSel:       '#loading',
+					renderSSControls:          true,
+					renderNavControls:         true,
+					playLinkText:              'Play Slideshow',
+					pauseLinkText:             'Pause Slideshow',
+					prevLinkText:              '&lsaquo; Previous Photo',
+					nextLinkText:              'Next Photo &rsaquo;',
+					nextPageLinkText:          'Next &rsaquo;',
+					prevPageLinkText:          '&lsaquo; Prev',
+					enableHistory:             true,
+					autoStart:                 false,
+					syncTransitions:           true,
+					defaultTransitionDuration: 900,
+					onSlideChange:             function(prevIndex, nextIndex) {
 						$('#thumbs ul.thumbs').children()
 							.eq(prevIndex).fadeTo('fast', onMouseOutOpacity).end()
 							.eq(nextIndex).fadeTo('fast', 1.0);
 					},
-//					onTransitionOut:        function(slide, caption, isSync, callback) {
+//					onTransitionOut:           function(slide, caption, isSync, callback) {
 //						$('#caption').fadeTo('fast', 0.0);
 //						$('#slideshow').fadeTo('fast', 0.0, callback);
 //					},
-//					onTransitionIn:         function(slide, caption, isSync) {
-//						$('#slideshow').fadeTo('fast', 1.0);
-//						$('#caption').fadeTo('fast', 1.0);
-//					},
-					onPageTransitionOut:    function(callback) {
+					onTransitionIn:            function(slide, caption, isSync) {
+						var duration = this.getDefaultTransitionDuration(isSync);
+						slide.fadeTo(duration, 1.0);
+						var slideImage = slide.find('img');
+						caption.width(slideImage.outerWidth())
+							.css({
+								'bottom' : (slide.height() - slideImage.outerHeight()) / 2,
+								'left' : slideImage.position().left
+							})
+							.fadeTo(duration, 0.7);
+					},
+					onPageTransitionOut:       function(callback) {
 						$('#thumbs ul.thumbs').fadeTo('fast', 0.0, callback);
 					},
-					onPageTransitionIn:     function() {
+					onPageTransitionIn:        function() {
 						$('#thumbs ul.thumbs').fadeTo('fast', 1.0);
 					}
 				});

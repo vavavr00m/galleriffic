@@ -8,7 +8,7 @@ div.content a, div.navigation a {
 	text-decoration: none;
 	color: #777;
 }
-div.content  a:focus, div.content  a:hover, div.content  a:active {
+div.content a:focus, div.content a:hover, div.content a:active {
 	text-decoration: underline;
 }
 div.controls {
@@ -54,6 +54,9 @@ div.slideshow a.advance-link {
 	height: 502px; /* This should be set to be at least the height of the largest image in the slideshow */
 	line-height: 502px; /* This should be set to be at least the height of the largest image in the slideshow */
 	text-align: center;
+}
+div.slideshow a.advance-link:hover, div.slideshow a.advance-link:active, div.slideshow a.advance-link:visited {
+	text-decoration: none;
 }
 div.slideshow img {
 	vertical-align: middle;

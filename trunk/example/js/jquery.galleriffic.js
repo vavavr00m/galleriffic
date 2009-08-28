@@ -62,6 +62,7 @@
 		preloadAhead:              40, // Set to -1 to preload all images
 		enableTopPager:            false,
 		enableBottomPager:         true,
+		maxPagesToShow:            7,
 		imageContainerSel:         '',
 		captionContainerSel:       '',
 		controlsContainerSel:      '',
@@ -529,23 +530,49 @@
 			buildPager: function(pager) {
 				var gallery = this;
 				var startIndex = this.currentPage*this.numThumbs;
+				var pagesRemaining = this.maxPagesToShow - 1;
 				
+				var pageNum = this.currentPage - Math.floor((this.maxPagesToShow - 1) / 2) + 1;
+				if (pageNum > 0) {
+					var remainingPageCount = this.numPages - pageNum;
+					if (remainingPageCount < pagesRemaining) {
+						pageNum = pageNum - (pagesRemaining - remainingPageCount);
+					}
+				}
+
+				if (pageNum < 0) {
+					pageNum = 0;
+				}
+
 				// Prev Page Link
 				if (this.currentPage > 0) {
 					var prevPage = startIndex - this.numThumbs;
 					pager.append('<a rel="history" href="#'+this.data[prevPage].hash+'" title="'+this.prevPageLinkText+'">'+this.prevPageLinkText+'</a>');
 				}
 
-				// Page Index Links
-				for (i=this.currentPage-3; i<=this.currentPage+3; i++) {
-					var pageNum = i+1;
+				// Create First Page link if needed
+				if (pageNum > 0) {
+					this.buildPageLink(pager, 0);
+					if (pageNum > 1)
+						pager.append('<span class="ellipsis">&hellip;</span>');
 					
-					if (i == this.currentPage)
-						pager.append('<span class="current">'+pageNum+'</span>');
-					else if (i>=0 && i<this.numPages) {
-						var imageIndex = i*this.numThumbs;
-						pager.append('<a rel="history" href="#'+this.data[imageIndex].hash+'" title="'+pageNum+'">'+pageNum+'</a>');
-					}
+					pagesRemaining--;
+				}
+
+				// Page Index Links
+				while (pagesRemaining > 0) {
+					this.buildPageLink(pager, pageNum);
+					pagesRemaining--;
+					pageNum++;
+				}
+
+				// Create Last Page link if needed
+				if (pageNum < this.numPages) {
+					var lastPageNum = this.numPages - 1;
+					if (pageNum < lastPageNum)
+						pager.append('<span class="ellipsis">&hellip;</span>');
+
+					this.buildPageLink(pager, lastPageNum);
 				}
 
 				// Next Page Link
@@ -559,6 +586,17 @@
 				});
 
 				return this;
+			},
+			
+			buildPageLink: function(pager, pageNum) {
+				var pageLabel = pageNum + 1;
+
+				if (pageNum == this.currentPage)
+					pager.append('<span class="current">'+pageLabel+'</span>');
+				else if (pageNum < this.numPages) {
+					var imageIndex = pageNum*this.numThumbs;
+					pager.append('<a rel="history" href="#'+this.data[imageIndex].hash+'" title="'+pageLabel+'">'+pageLabel+'</a>');
+				}
 			}
 		});
 
@@ -596,6 +634,10 @@
 		registerGallery(this);
 
 		this.numPages = Math.ceil(this.data.length/this.numThumbs);
+		
+		if (this.maxPagesToShow < 3)
+			this.maxPagesToShow = 3;
+
 		this.currentPage = -1;
 		this.currentIndex = 0;
 		var gallery = this;

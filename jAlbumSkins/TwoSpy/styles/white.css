@@ -4,9 +4,6 @@ html, body {
 }
 body{
 	text-align: center;
-	/* font-family: Helvetica, Arial;
-	background-color: #ccc;
-	font-size: 0.85em; */
 }
 div#page {
 	width: 900px;
@@ -33,131 +30,202 @@ div#footer {
 }
 
 div.content {
-	/* The display of content is enabled by a javascript generated style on the page.
-	   This is so that the slideshow content won't display unless javascript is enabled. */
 	display: none;
-	float:right;
-	width:550px;
+	clear: both;
+}
+
+div.content a, div.navigation a {
+	text-decoration: none;
+	color: #777;
+}
+div.content a:focus, div.content a:hover, div.content a:active {
+	text-decoration: underline;
 }
 div.controls {
-	margin-top: 3px;
+	margin-top: 5px;
 	height: 23px;
+}
+div.controls a {
+	padding: 5px;
 }
 div.ss-controls {
 	float: left;
 }
-div.ss-controls span {
-	color: #666666;
-	cursor: pointer;
-}
 div.nav-controls {
 	float: right;
 }
-div.nav-controls a {
-	padding: 5px;
+div.slideshow-container {
+	position: relative;
+	clear: both;
+	float: left;
+	/* height: 502px; */ /* This should be set to be at least the height of the largest image in the slideshow */
+}
+div.loader {
+	position: absolute;
+	top: 0;
+	left: 0;
+	background-image: url('images/loader.gif');
+	background-repeat: no-repeat;
+	background-position: center;
+	/* width: 550px; */
+	/* height: 502px; */ /* This should be set to be at least the height of the largest image in the slideshow */
 }
 div.slideshow {
-	clear: both;
+
 }
 div.slideshow span.image-wrapper {
-	text-align: center;
-	padding-bottom: 12px;
 	display: block;
-	margin: auto;
+	position: absolute;
+	top: 30px;
+	left: 0;
 }
-div.download {
-	float: right;
-	margin-top: 4px;
+div.slideshow a.advance-link {
+	display: block;
+	/* width: 550px; */
+	/* height: 502px; */ /* This should be set to be at least the height of the largest image in the slideshow */
+	/* line-height: 502px; */ /* This should be set to be at least the height of the largest image in the slideshow */
+	text-align: center;
 }
-div.embox {
-	clear: both;
+div.slideshow a.advance-link:hover,
+div.slideshow a.advance-link:active,
+div.slideshow a.advance-link:visited {
+	text-decoration: none;
+}
+div.slideshow a.advance-link:focus {
+	outline: none;
+}
+
+div.slideshow img {
+	/* vertical-align: middle; */
 	border: 1px solid #ccc;
-	background-color: #eee;
+}
+div.caption-container {
+	float: right;
+	position: relative;
+	margin-top: 30px;
+}
+span.image-caption {
+	display: block;
+	position: absolute;
+	top: 0;
+	left: 0;
+	/* padding: 0 30px; */
+}
+div.caption {
+	/* background-color: #f0f0f0; */
 	padding: 12px;
+	color: #111;
+}
+div.caption a {
+	color: #000;
 }
 div.image-title {
 	font-weight: bold;
 	font-size: 1.4em;
 }
-
 div.image-desc {
 	line-height: 1.3em;
 	padding-top: 12px;
 }
-div.navigation {
-	/* The navigation style is set by a javascript generated style on the page.
-	   This is so that the javascript specific styles won't be applied unless javascript is enabled. */
+div.download {
+	margin-top: 8px;
 }
-
+div.navigation-container {
+	float: left;
+	position: relative;
+	left: 50%;
+}
+div.navigation {
+	float: left;
+	position: relative;
+	left: -50%;
+}
+a.pageLink {
+	display: block;
+	position: relative;
+	float: left;
+	margin: 2px;
+}
 ul.thumbs {
-	clear: both;
+	position: relative;
+	float: left;
 	margin: 0;
 	padding: 0;
 }
 ul.thumbs li {
 	float: left;
 	padding: 0;
-	margin: 5px 10px 5px 0;
+	margin: 2px;
 	list-style: none;
-	text-align: center;
 }
-
-#gallery img, #thumbs img, #folders img
-{
-	background:url(/wp-content/themes/twospy/img/shadow.gif) no-repeat right bottom;
-	padding:4px 10px 10px 4px;	
-	border-top:#eee 1px solid;
-	border-left:#eee 1px solid;	
+a.thumb {
+	padding: 2px;
+	display: block;
+	/* border: 1px solid #ccc; */
 }
-
-a.advance-link:focus, a.thumb:focus {
+ul.thumbs li.selected a.thumb {
+	background: #000;
+}
+a.thumb:focus {
 	outline: none;
 }
-
-/*
-a img {
-	border-color:#EEEEEE -moz-use-text-color -moz-use-text-color #EEEEEE;
-	border-style:solid none none solid;
-	border-width:1px medium medium 1px;
-	padding:4px 10px 10px 4px;
+ul.thumbs img {
+	border: none;
+	display: block;
 }
-img {
-	background:transparent url(/wp-content/themes/twospy/img/shadow.gif) no-repeat scroll right bottom;
-	border-left: 1px solid #EEEEEE;
-	border-top: 1px solid #EEEEEE;
-	padding: 4px 10px 10px 4px;
-}
-*/
-
-#folders ul.thumbs li {
-	display:block;
-	height:120px;
-	margin:10px;
-	width:105px;
-}
-
 div.pagination {
 	clear: both;
+	position: relative;
+	left: -50%;
 }
-div.navigation div.top {
-	margin-bottom: 12px;
-	height: 10px;
-}
-div.navigation div.bottom {
-	margin-top: 12px;
-}
-div.pagination a, div.pagination span.current {
+div.pagination a, div.pagination span.current, div.pagination span.ellipsis {
+	position: relative;
 	display: block;
 	float: left;
-	/* margin-right: 1px; */
-	padding: 3px 5px;
+	margin-right: 2px;
+	padding: 4px 7px 2px 7px;
+	border: 1px solid #ccc;
 }
 div.pagination a:hover {
-	background-color: #ffc;
+	background-color: #eee;
+	text-decoration: none;
 }
 div.pagination span.current {
 	font-weight: bold;
+	background-color: #000;
+	border-color: #000;
+	color: #fff;
 }
+div.pagination span.ellipsis {
+	border: none;
+	padding: 5px 0 3px 2px;
+}
+
+div.gallery-gutter {
+	clear: both;
+	padding-bottom: 20px;
+}
+
+#folders {
+	float: left;
+	position: relative;
+	left: 50%;
+}
+
+#folders ul.thumbs {
+    position: relative;
+	left: -50%;
+}
+
+#folders ul.thumbs li {
+	position: relative;
+	display: block;
+	float: left;
+	height: 120px;
+	margin: 10px 20px;
+	text-align: center;
+}
+
 /* Specific Styles for TwoSpy Gallery */
 body {
 	background: #333 url(images/bodybg.png) repeat-x fixed top center;
@@ -217,21 +285,12 @@ h2.album-date {
 p.album-description {
 	margin-top: 20px;
 }
-div.meta {
-	margin-top: 10px;
+ul.meta {
+	margin: 10px 0 0 0;
+	padding: 0;
 	font-size: 0.8em;
 }
-div.meta ul {
-	margin: 0;
+ul.meta li {
 	padding: 0;
-}
-div.meta li {
-	float: left;
-	padding: 0;
-	margin-right: 10px;
-	width: 240px;
 	list-style: none;
-}
-div.meta div.meta-footer {
-	clear: both;
 }

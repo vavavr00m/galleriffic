@@ -43,7 +43,7 @@ ControlPanel ui = new ControlPanel() {
 	JTextField preloadAhead = new JTextField("10", 2);
 	JCheckBox enableHistory = new JCheckBox("Enable Browser History", true);
 	JTextField inactiveThumbOpacity = new JTextField("0.67", 5);
-	JCheckBox enableFadeTransitions = new JCheckBox("Enable Fade Transitions", true);
+	// JCheckBox enableFadeTransitions = new JCheckBox("Enable Fade Transitions", true);
     JCheckBox enableDownload = new JCheckBox("Enable Download", false);
 
 	// EXIF
@@ -103,7 +103,7 @@ ControlPanel ui = new ControlPanel() {
       advanced.add("br", ui.enableHistory);
       advanced.add("br", new JLabel("Inactive Thumbnail Opacity (between 0 and 1)"));
       advanced.add("tab", ui.inactiveThumbOpacity);
-      advanced.add("br", ui.enableFadeTransitions);
+      // advanced.add("br", ui.enableFadeTransitions);
       advanced.add("br", ui.enableDownload);
     behavior.add("br hfill vfill", advanced);
 
@@ -155,7 +155,7 @@ ControlPanel ui = new ControlPanel() {
     gallerifficLink.setURL("http://www.twospy.com/galleriffic/index.html");
     gallerifficLink.setToolTipText("Go to Galleriffic Homepage");
     aboutPanel.add(gallerifficLink);
-    aboutPanel.add(new JLabel(" : v 1.0"));
+    aboutPanel.add(new JLabel(" : v 1.1"));
     aboutPanel.add("p", new JLabel("Galleriffic is a JAlbum gallery skin that wraps the Galleriffic jQuery plugin."));
     aboutPanel.add("br", new JLabel("It is designed to handle large volumes of photos by performing smart image"));
     aboutPanel.add("br", new JLabel("preloading behind the scenes after the page is loaded."));

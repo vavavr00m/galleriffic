@@ -33,5 +33,4 @@ skin.autoStart=false
 skin.preloadAhead=10
 skin.enableHistory=true
 skin.inactiveThumbOpacity=0.67
-skin.enableFadeTransitions=true
 skin.enableDownload=false

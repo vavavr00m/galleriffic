@@ -30,9 +30,11 @@
 				}
 			%>
 		</title>
+		<link rel="stylesheet" href="${resPath}/galleriffic.css" type="text/css" />
 		<link rel="stylesheet" href="${stylePath}" type="text/css" />
 		<style type="text/css">
 			div.navigation a.pageLink {
+				height: <%= maxThumbHeight + 2 %>px;
 				line-height: <%= maxThumbHeight + 2 %>px;
 			}
 			div.slideshow-container {
@@ -57,7 +59,8 @@
 		<script type="text/javascript">
 			document.write('<style type="text/css">.noscript { display:none; }</style>');
 		</script>
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.js"></script>
+		<!-- <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.js"></script> -->
+		<script type="text/javascript" src="${resPath}/jquery-1.3.2.js"></script>
 		<script type="text/javascript" src="${resPath}/jquery.history.js"></script>
 		<script type="text/javascript" src="${resPath}/jquery.galleriffic.js"></script>
 	</head>
@@ -104,8 +107,8 @@
 				<ja:if test="<%= !hasImages %>">
 				<div class="navigation-container">
 					<div id="thumbs" class="navigation">
-						<a class="pageLink prev" style="display: none;" href="#" title="${prevPageLinkText}">&lt;</a>
-						<ul class="thumbs noscript"><% hasImages = true; %>
+						<ja:if test="${paginateThumbs}"><a class="pageLink prev" style="visibility: hidden;" href="#" title="${prevPageLinkText}"></a>
+						</ja:if><ul class="thumbs noscript"><% hasImages = true; %>
 					</ja:if>
 							<li>
 								<a class="thumb" href="${imagePath}" title="${title}">
@@ -136,8 +139,8 @@
 							</li></ja:fileiterator>
 					<ja:if test="<%= hasImages %>">
 						</ul>
-						<a class="pageLink next" style="display: none;" href="#" title="${nextPageLinkText}">&gt;</a>
-					</div>
+						<ja:if test="${paginateThumbs}"><a class="pageLink next" style="visibility: hidden;" href="#" title="${nextPageLinkText}"></a>
+					</ja:if></div>
 				</div>
 				<div class="content">
 					<div class="slideshow-container">
@@ -145,7 +148,9 @@
 						<div id="loading" class="loader"></div>
 						<div id="slideshow" class="slideshow"></div>
 					</div>
-					<div id="caption" class="caption-container"></div>
+					<div id="caption" class="caption-container">
+						<div class="photo-index"></div>
+					</div>
 				</div>
 				<div class="gallery-gutter"></div>
 				</ja:if>
@@ -185,7 +190,7 @@
 				// Initially set opacity on thumbs and add
 				// additional styling for hover effect on thumbs
 				var onMouseOutOpacity = 0.67;
-				$('ul.thumbs li').css('opacity', onMouseOutOpacity)
+				$('#thumbs ul.thumbs li, div.navigation a.pageLink').css('opacity', onMouseOutOpacity)
 					.hover(
 						function () {
 							$(this).not('.selected').fadeTo('fast', 1.0);
@@ -197,12 +202,11 @@
 
 				var gallery = $('#thumbs').galleriffic('#thumbs', {
 					<ja:if exists="delay">delay:                  ${delay},
-					</ja:if><ja:if exists="numThumbs">numThumbs:              ${numThumbs},
-					</ja:if><ja:if exists="preloadAhead">preloadAhead:           ${preloadAhead},
-					</ja:if><ja:if exists="enableTopPager">enableTopPager:         ${enableTopPager},
-					</ja:if><ja:if exists="enableBottomPager">enableBottomPager:      ${enableBottomPager},
-					</ja:if>maxPagesToShow:            7,
-					imageContainerSel:      '#slideshow',
+					</ja:if>numThumbs:              <ja:if test="${paginateThumbs}"><%= (820 / (maxThumbWidth + 6)) %></ja:if><ja:else>${totalImages}</ja:else>,
+					<ja:if exists="preloadAhead">preloadAhead:           ${preloadAhead},
+					</ja:if><ja:if exists="enableTopPager">enableTopPager:         false, //${enableTopPager},
+					</ja:if><ja:if exists="enableBottomPager">enableBottomPager:      false, //${enableBottomPager},
+					</ja:if>imageContainerSel:      '#slideshow',
 					controlsContainerSel:   '#controls',
 					captionContainerSel:    '#caption',
 					loadingContainerSel:    '#loading',
@@ -221,24 +225,28 @@
 						$('#thumbs ul.thumbs').children()
 							.eq(prevIndex).fadeTo('fast', onMouseOutOpacity).end()
 							.eq(nextIndex).fadeTo('fast', 1.0);
+						
+						this.$captionContainer.find('div.photo-index').html('Photo '+ (nextIndex+1) +' of '+ this.data.length);
 					},
 					</ja:if>onPageTransitionOut:       function(callback) {
 						$('#thumbs ul.thumbs').fadeTo('fast', 0.0, callback);
 					},
 					onPageTransitionIn:        function() {
-						var prevPageLink = $('div.navigation a.prev').hide();
-						var nextPageLink = $('div.navigation a.next').hide();
+						var prevPageLink = $('div.navigation a.prev').css('visibility', 'hidden');
+						var nextPageLink = $('div.navigation a.next').css('visibility', 'hidden');
 						
 						var startPageIndex = this.currentPage * this.numThumbs;
 
 						if (this.currentPage > 0) {
 							var prevPageIndex = startPageIndex - 1;
-							prevPageLink.attr('href', '#'+prevPageIndex).show();
+							prevPageLink.attr('href', '#'+prevPageIndex)
+								.css('visibility', 'visible');
 						}
 						
 						if (this.currentPage < (this.numPages - 1)) {
 							var nextPageIndex = startPageIndex + this.numThumbs;
-							nextPageLink.attr('href', '#'+nextPageIndex).show();
+							nextPageLink.attr('href', '#'+nextPageIndex)
+								.css('visibility', 'visible');
 						}
 						
 						$('#thumbs ul.thumbs').fadeTo('fast', 1.0);

@@ -5,12 +5,12 @@ html, body {
 body{
 	text-align: center;
 	font-family: "Lucida Grande", "Lucida Sans Unicode", Verdana, Helvetica, Arial, sans-serif;
-	background-color: #eee;
-	color: #444;
+	background-color: #111;
+	color: #bbb;
 	font-size: 75%;
 }
 a{
-	color: #27D;
+	color: #f70;
 	text-decoration: none;
 }
 a:focus, a:hover, a:active {
@@ -26,7 +26,7 @@ h1, h2 {
 h1 {
 	padding: 0;
 	font-size:3em;
-	color: #333;
+	color: #ccc;
 	letter-spacing:-1px;
 }
 h2 {
@@ -40,10 +40,10 @@ pre {
 }
 div#page {
 	width: 900px;
-	background-color: #fff;
+	background-color: #000;
 	margin: 0 auto;
 	text-align: left;
-	border-color: #ddd;
+	border-color: #222;
 	border-style: none solid solid;
 	border-width: medium 1px 1px;
 }
@@ -56,7 +56,7 @@ div#ads {
 }
 div#footer {
 	clear: both;
-	color: #777;
+	color: #888;
 	margin: 0 auto;
 	padding-top: 20px;
 	text-align: center;
@@ -78,7 +78,7 @@ ul.meta li {
 	list-style: none;
 }
 div.caption-container {
-	color: #111;
+	color: #eee;
 }
 div.image-title {
 	font-weight: bold;
@@ -92,5 +92,32 @@ div.download {
 	margin-top: 8px;
 }
 div.photo-index {
-	color: #777;
+	color: #888;
+}
+div.navigation a.prev {
+	background-image: url(images/prevPageArrowWhite.gif);
+}
+div.navigation a.next {
+	background-image: url(images/nextPageArrowWhite.gif);
+}
+div.loader {
+	background-image: url('images/loaderWhite.gif');
+}
+div.slideshow img {
+	/* vertical-align: middle; */
+	border: 1px solid #333;
+}
+ul.thumbs li.selected a.thumb {
+	background: #fff;
+}
+div.pagination a, div.pagination span.current, div.pagination span.ellipsis {
+	border: 1px solid #333;
+}
+div.pagination a:hover {
+	background-color: #111;
+}
+div.pagination span.current {
+	background-color: #fff;
+	border-color: #fff;
+	color: #000;
 }

@@ -23,10 +23,10 @@ ControlPanel ui = new ControlPanel() {
     JTextField bcLevel2Link = new JTextField("",35);
 
 	// Thumbnails
-    JTextField numThumbs = new JTextField("",4);
-    JCheckBox fixedShape = new JCheckBox("Crop thumbs to fixed shape", true);
-	JCheckBox enableTopPager = new JCheckBox("Enable Top Pager", true);
-	JCheckBox enableBottomPager = new JCheckBox("Enable Bottom Pager", true);
+    //JTextField numThumbs = new JTextField("",4);
+    // JCheckBox fixedShape = new JCheckBox("Crop thumbs to fixed shape", true);
+	// JCheckBox enableTopPager = new JCheckBox("Enable Top Pager", true);
+	// JCheckBox enableBottomPager = new JCheckBox("Enable Bottom Pager", true);
 
 	// Labels
 	JTextField playLinkText = new JTextField("Play", 20);
@@ -37,6 +37,7 @@ ControlPanel ui = new ControlPanel() {
 	JTextField prevPageLinkText = new JTextField("&lsaquo; Prev", 20);
 
 	// Behavior
+	JCheckBox paginateThumbs = new JCheckBox("Paginate thumbnails", true);
 	JCheckBox renderSSControls = new JCheckBox("Enable Slideshow", true);
     JTextField delay = new JTextField("3000", 4);
 	JCheckBox autoStart = new JCheckBox("Auto Start Slideshow", false);
@@ -82,23 +83,26 @@ ControlPanel ui = new ControlPanel() {
   generalPanel.add("tab hfill", ui.copyright);
 
   // Thumbnails
-  ControlPanel thumbsPanel = new ControlPanel();
-  thumbsPanel.add(new JLabel("Number of Thumbnails per Page"));
-  thumbsPanel.add("tab", ui.numThumbs);
-  thumbsPanel.add("br", ui.fixedShape);
-  thumbsPanel.add("br", ui.enableTopPager);
-  thumbsPanel.add("br", ui.enableBottomPager);
+  //ControlPanel thumbsPanel = new ControlPanel();
+  //thumbsPanel.add(new JLabel("Number of Thumbnails per Page"));
+  //thumbsPanel.add("tab", ui.numThumbs);
+  //thumbsPanel.add("br", ui.fixedShape);
+  //thumbsPanel.add("br", ui.enableTopPager);
+  //thumbsPanel.add("br", ui.enableBottomPager);
 
   // Behavior
   ControlPanel behavior = new ControlPanel();
 	behavior.add(ui.renderSSControls);
+	ControlPanel thumbnails = new ControlPanel("Thumbnails");
+	  thumbnails.add(ui.paginateThumbs);
+    behavior.add("br hfill vfill", thumbnails);
     ControlPanel slideshow = new ControlPanel("Slideshow");
       slideshow.add(new JLabel("Speed of the Slide Show Transition (1000 = 1 second)"));
       slideshow.add("tab", ui.delay);
       slideshow.add("br", ui.autoStart);
     behavior.add("br hfill vfill", slideshow);
     ControlPanel advanced = new ControlPanel("Advanced");
-      advanced.add("br", new JLabel("# of Images to Preload Ahead of the Current Image"));
+      advanced.add(new JLabel("# of Images to Preload Ahead of the Current Image"));
       advanced.add("tab", ui.preloadAhead);
       advanced.add("br", ui.enableHistory);
       advanced.add("br", new JLabel("Inactive Thumbnail Opacity (between 0 and 1)"));
@@ -177,7 +181,7 @@ ui.siteTitle.setToolTipText("Text that will appear on the page, such as Home or 
 tabs = new JTabbedPane();
 tabs.setName("GallerifficTabs");
 tabs.add(generalPanel, "General");
-tabs.add(thumbsPanel, "Thumbnails");
+//tabs.add(thumbsPanel, "Thumbnails");
 tabs.add(behavior, "Behavior");
 tabs.add(labelsPanel, "Labels");
 tabs.add(cameraPanel, "EXIF");

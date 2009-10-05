@@ -3,4 +3,5 @@
  * It basically installs filters set in the user interface
  */
 
-if (fixedShape) engine.addFilter(new FixedShapeFilter(), 4);
+// if (fixedShape) 
+engine.addFilter(new FixedShapeFilter(), 4);

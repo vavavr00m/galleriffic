@@ -28,8 +28,11 @@
 				</div>
 				<h3>Examples</h3>
 				<ul>
-					<li><a href="minimal.html">Minimal Example</a></li>
-					<li><a href="advanced.html">Advanced Example</a></li>
+					<li><a href="example-1.html">Minimal implementation</a></li>
+					<li><a href="example-2.html">Thumbnail rollover effects and slideshow crossfades</a></li>
+					<li><a href="example-3.html">Integration with history plugin</a></li>
+					<li><a href="example-4.html">Insert an image into the gallery after initialization</a></li>
+					<li><a href="example-5.html">Custom layout with external controls</a></li>
 				</ul>
 				<h3>Features</h3>
 				<ul>
@@ -71,25 +74,27 @@
 					</li>
 					<li>Within the thumbnails container element, build your graceful degrading unordered list of thumbnails linking to the image slides as such:
 						<pre class="jush">
-&lt;ul class="thumbs noscript"&gt;
-	&lt;li&gt;
-		&lt;a class="thumb" href="path/to/slide" title="your image title"&gt;
-			&lt;img src="path/to/thumbnail" alt="your image title again for graceful degradation" /&gt;
-		&lt;/a&gt;
-		&lt;div class="caption"&gt;
-			(Any html can go here)
-		&lt;/div&gt;
-	&lt;/li&gt;
-	... (repeat for every image in the gallery)
-&lt;/ul&gt;
+&lt;div id="thumbs"&gt;
+	&lt;ul class="thumbs noscript"&gt;
+		&lt;li&gt;
+			&lt;a class="thumb" name="optionalCustomIdentifier" href="path/to/slide" title="your image title"&gt;
+				&lt;img src="path/to/thumbnail" alt="your image title again for graceful degradation" /&gt;
+			&lt;/a&gt;
+			&lt;div class="caption"&gt;
+				(Any html can go here)
+			&lt;/div&gt;
+		&lt;/li&gt;
+		... (repeat for every image in the gallery)
+	&lt;/ul&gt;
+&lt;/div&gt;
 						</pre>
 						It is important to specify the 'thumb' class for the link that should serve as the thumbnail and the 'caption' class for
 						the element that should serve as the caption.  When an image is selected for display in the slideshow, any elements with the 'caption' class will be rendered within the specified caption container element above.
 					</li>
-					<li>Initialize the gallery by calling the <em>galleriffic</em> initialization function with two arguments, the thumbnails container selector and an options hash.  The following example shows the default options:
+					<li>Initialize the gallery by calling the <em>galleriffic</em> initialization function on the thumbnails container, passing in optional settings.  The following example shows the default options:
 						<pre class="jush-js">
 jQuery(document).ready(function($) {
-	var gallery = $('#gallery').galleriffic('#thumbs', {
+	var gallery = $('#thumbs').galleriffic({
 		delay:                     3000, // in milliseconds
 		numThumbs:                 20, // The number of thumbnails to show page
 		preloadAhead:              40, // Set to -1 to preload all images
@@ -116,7 +121,8 @@ jQuery(document).ready(function($) {
 		onTransitionOut:           undefined, // accepts a delegate like such: function(slide, caption, isSync, callback) { ... }
 		onTransitionIn:            undefined, // accepts a delegate like such: function(slide, caption, isSync) { ... }
 		onPageTransitionOut:       undefined, // accepts a delegate like such: function(callback) { ... }
-		onPageTransitionIn:        undefined  // accepts a delegate like such: function() { ... }
+		onPageTransitionIn:        undefined, // accepts a delegate like such: function() { ... }
+		onImageAdded:              undefined  // accepts a delegate like such: function($li) { ... }
 	});
 });
 						</pre>
@@ -125,9 +131,9 @@ jQuery(document).ready(function($) {
 
 				<h3>Download</h3>
 
-				Download latest (release 1.1):
+				Download latest (release 2.0):
 				<ul>
-					<li>Examples: <a href="galleriffic-1.1.zip">galleriffic-1.1.zip</a> ( ~70 kb )</li>
+					<li>Examples: <a href="galleriffic-2.0.zip">galleriffic-2.0.zip</a> ( ~70 kb )</li>
 					<li>Script only: <a href="js/jquery.galleriffic.js">jquery.galleriffic.js</a> ( ~20 kb )</li>
 				</ul>
 

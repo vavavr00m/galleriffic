@@ -158,23 +158,3 @@ div.pagination span.ellipsis {
 	margin-top: 5px;
 	padding: 5px 30px 5px 5px;
 }
-
-/* Minimal Gallery Styles */
-#thumbs-min ul.thumbs li {
-	float: none;
-	padding: 0;
-	margin: 0;
-	list-style: none;
-}
-
-#thumbs-min a.thumb {
-	padding: 0px;
-	display: inline;
-	border: none;
-}
-
-#thumbs-min ul.thumbs li.selected a.thumb {
-	background: inherit;
-	color: #000;
-	font-weight: bold;
-}

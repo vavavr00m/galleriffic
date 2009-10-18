@@ -583,10 +583,8 @@
 			// Also checks if the current page has changed and updates the displayed page of thumbnails if necessary.
 			syncThumbs: function() {
 				var page = this.getCurrentPage();
-				if (page != this.displayedPage) {
-					this.displayedPage = page;
+				if (page != this.displayedPage)
 					this.updateThumbs();
-				}
 
 				// Remove existing selected class and add selected class to new thumb
 				var $thumbs = this.find('ul.thumbs').children();

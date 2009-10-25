@@ -9,10 +9,10 @@
 		<div id="page">
 			<div id="container">
 				<h1>Galleriffic</h1>
-				<h2>A jQuery plugin for rendering fast-performing photo galleries</h2>
+				<h2>A jQuery plugin for rendering rich, fast-performing photo galleries</h2>
 				<p>
-					Galleriffic was inspired by Mike Alsup's Cycle plugin, but with performance in mind for
-					delivering a high volume of photos.  This is my first experiment with jQuery, so I would love
+					Galleriffic is a jQuery plugin that provides a rich, post-back free experience optimized to handle high volumes of 
+photos while conserving bandwidth.  It was designed to be as configuration 
 					<a href="http://trentacular.com/2009/02/galleriffic-1-0/">feedback</a> on how to
 					improve this plugin.  I am not so great at spelling, and it was much later that I realized that
 					the more appropriate spellings would be Galle<em>rif</em>ic or Galle<em>rrif</em>ic, but is too late now for a
@@ -26,14 +26,7 @@
 						<img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
 					</form>
 				</div>
-				<h3>Examples</h3>
-				<ul>
-					<li><a href="example-1.html">Minimal implementation</a></li>
-					<li><a href="example-2.html">Thumbnail rollover effects and slideshow crossfades</a></li>
-					<li><a href="example-3.html">Integration with history plugin</a></li>
-					<li><a href="example-4.html">Insert an image into the gallery after initialization</a></li>
-					<li><a href="example-5.html">Custom layout with external controls</a></li>
-				</ul>
+
 				<h3>Features</h3>
 				<ul>
 					<li>Smart image preloading <strong>after</strong> the page is loaded</li>
@@ -41,22 +34,35 @@
 					<li>Support for bookmark-friendly URLs per-image</li>
 					<li>Slideshow (with optional auto-updating url bookmarks)</li>
 					<li>Events that allow for adding your own custom transition effects</li>
+					<li>Simple API for controlling the gallery with custom controls</li>
 					<li>Support for image captions</li>
 					<li>Flexible configuration</li>
 					<li>Graceful degradation when javascript is not available</li>
 					<li>Support for multiple galleries per page</li>
 				</ul>
 
-				<h3 style="padding-top: 20px; clear: both;">Usage</h3>
+				<h3>Examples</h3>
+				<ul>
+					<li><a href="example-1.html">Minimal implementation</a></li>
+					<li><a href="example-2.html">Thumbnail rollover effects and slideshow crossfades</a></li>
+					<li><a href="example-3.html">Integration with history plugin</a></li>
+					<li><a href="example-4.html">Insert and remove images after initialization</a></li>
+					<li><a href="example-5.html">Custom layout with external controls</a></li>
+				</ul>
 
+				<h3>Usage</h3>
 				<ol>
-					<li>Download the latest version of Galleriffic below and jQuery 1.2.6 or later (use other versions of jQuery at your own risk)</li>
+					<li>Download the latest version of Galleriffic below and jQuery 1.3.2 or later (use other versions of jQuery at your own risk)</li>
 					<li>Setup the script references in the header:
 						<pre class="jush">
 &lt;head&gt;
 	...
-	&lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"&gt;&lt;/script&gt;
+	&lt;script type="text/javascript" src="js/jquery-1.3.2.js"&gt;&lt;/script&gt;
 	&lt;script type="text/javascript" src="js/jquery.galleriffic.js"&gt;&lt;/script&gt;
+
+	&lt;!-- Optionally include jquery.history.js for history support --&gt;
+	&lt;script type="text/javascript" src="js/jquery.history.js"&gt;&lt;/script&gt;
+	&lt;script type="text/javascript" src="js/jquery.opacityrollover.js"&gt;&lt;/script&gt;
 	...
 &lt;/head&gt;
 						</pre>
@@ -122,7 +128,8 @@ jQuery(document).ready(function($) {
 		onTransitionIn:            undefined, // accepts a delegate like such: function(slide, caption, isSync) { ... }
 		onPageTransitionOut:       undefined, // accepts a delegate like such: function(callback) { ... }
 		onPageTransitionIn:        undefined, // accepts a delegate like such: function() { ... }
-		onImageAdded:              undefined  // accepts a delegate like such: function($li) { ... }
+		onImageAdded:              undefined, // accepts a delegate like such: function(imageData, $li) { ... }
+		onImageRemoved:            undefined  // accepts a delegate like such: function(imageData, $li) { ... }
 	});
 });
 						</pre>

@@ -16,7 +16,7 @@
 	<body>
 		<div id="page">
 			<div id="container">
-				<h1><a href="index.html">Galleriffic</a> &raquo; Insert an image into the gallery after initialization</h1>
+				<h1><a href="index.html">Galleriffic</a> &raquo; Insert and remove images after initialization</h1>
 
 				<!-- Start Advanced Gallery Html Containers -->
 				<div id="gallery" class="content">
@@ -346,6 +346,10 @@
 				<!-- Add image link -->				
 				<div style="clear: left; float: left; padding-top: 10px;">
 					<a href="#addImage" id="addImageLink">Insert Image into Position 5</a>
+					<br />
+					<a href="#removeImageByIndex" id="removeImageByIndexLink">Remove Image at Position 5</a>
+					<br />
+					<a href="#removeImageByHash" id="removeImageByHashLink">Remove the Lizard Image (by its hash value 'lizard')</a>
 				</div>
 
 				<div style="clear: both;"></div>
@@ -437,7 +441,7 @@
 					onPageTransitionIn:        function() {
 						$('#thumbs ul.thumbs').fadeTo('fast', 1.0);
 					},
-					onImageAdded:              function($li) {
+					onImageAdded:              function(imageData, $li) {
 						$li.opacityrollover({
 							mouseOutOpacity:   onMouseOutOpacity,
 							mouseOverOpacity:  1.0,
@@ -485,7 +489,7 @@
 
 				/********************** Attach click event to the Add Image Link ************************/
 
-				$('#addImageLink').click(function() {
+				$('#addImageLink').click(function(e) {
 					gallery.insertImage('<li>																							\
 							<a class="thumb" href="http://farm1.static.flickr.com/79/263120676_2518b40e5b.jpg" title="Dynamically Added Image">\
 								<img src="http://farm1.static.flickr.com/79/263120676_2518b40e5b_s.jpg" alt="Dynamically Added Image" />\
@@ -501,6 +505,30 @@
 								</div>																									\
 							</div>																										\
 						</li>', 5);
+					
+					e.preventDefault();
+				});
+				
+				/****************************************************************************************/
+				
+				/***************** Attach click event to the Remove Image By Index Link *****************/
+				
+				$('#removeImageByIndexLink').click(function(e) {
+					if (!gallery.removeImageByIndex(5))
+						alert('There is no longer an image at position 5 to remove!');
+
+					e.preventDefault();
+				});
+				
+				/****************************************************************************************/
+
+				/***************** Attach click event to the Remove Image By Hash Link ******************/
+				
+				$('#removeImageByHashLink').click(function(e) {
+					if (!gallery.removeImageByHash('lizard'))
+						alert('The lizard image has already been removed!');
+
+					e.preventDefault();
 				});
 				
 				/****************************************************************************************/

@@ -21,11 +21,19 @@
 			return hash.replace(/\?.*$/, '').replace(/^#/, '');
 		},
 
+		getImage: function(hash) {
+			if (!hash)
+				return undefined;
+
+			hash = $.galleriffic.normalizeHash(hash);
+			return allImages[hash];
+		},
+
 		// Global function that looks up an image by its hash and displays the image.
 		// Returns false when an image is not found for the specified hash.
-		// @param {String} hash This is the unique hash value assigned to an image
+		// @param {String} hash This is the unique hash value assigned to an image.
 		gotoImage: function(hash) {
-			var imageData = allImages[hash];
+			var imageData = $.galleriffic.getImage(hash);
 			if (!imageData)
 				return false;
 
@@ -33,6 +41,25 @@
 			gallery.gotoImage(imageData);
 			
 			return true;
+		},
+
+		// Removes an image from its respective gallery by its hash.
+		// Returns false when an image is not found for the specified hash or the
+		// specified owner gallery does match the located images gallery.
+		// @param {String} hash This is the unique hash value assigned to an image.
+		// @param {Object} ownerGallery (Optional) When supplied, the located images
+		// gallery is verified to be the same as the specified owning gallery before
+		// performing the remove operation.
+		removeImageByHash: function(hash, ownerGallery) {
+			var imageData = $.galleriffic.getImage(hash);
+			if (!imageData)
+				return false;
+
+			var gallery = imageData.gallery;
+			if (ownerGallery && ownerGallery != gallery)
+				return false;
+
+			return gallery.removeImageByIndex(imageData.index);
 		}
 	};
 
@@ -64,7 +91,8 @@
 		onTransitionIn:            undefined, // accepts a delegate like such: function(slide, caption, isSync) { ... }
 		onPageTransitionOut:       undefined, // accepts a delegate like such: function(callback) { ... }
 		onPageTransitionIn:        undefined, // accepts a delegate like such: function() { ... }
-		onImageAdded:              undefined  // accepts a delegate like such: function($li) { ... }
+		onImageAdded:              undefined, // accepts a delegate like such: function(imageData, $li) { ... }
+		onImageRemoved:            undefined  // accepts a delegate like such: function(imageData, $li) { ... }
 	};
 
 	// Primary Galleriffic initialization function that should be called on the thumbnail container.
@@ -72,9 +100,11 @@
 		//  Extend Gallery Object
 		$.extend(this, {
 			// Returns the version of the script
-			ver: function() {
-				return ver;
-			},
+			version: $.galleriffic.version,
+
+			// Current state of the slideshow
+			isSlideshowRunning: false,
+			slideshowTimeout: undefined,
 
 			// This function is attached to the click event of generated hyperlinks within the gallery
 			clickHandler: function(e, link) {
@@ -142,9 +172,7 @@
 					this.data.splice(position, 0, imageData);
 
 					// Reset index value on all imageData objects
-					for (i = position; i < this.data.length; i++) {
-						this.data[i].index = i;
-					}
+					this.updateIndices(position);
 				}
 				else {
 					this.data.push(imageData);
@@ -163,7 +191,7 @@
 							$thumbsUl.append($li);
 						
 						if (gallery.onImageAdded)
-							gallery.onImageAdded($li);
+							gallery.onImageAdded(imageData, $li);
 					});
 				}
 
@@ -178,6 +206,61 @@
 						gallery.clickHandler(e, this);
 					});
 
+				return this;
+			},
+
+			// Removes an image from the gallery based on its index.
+			// Returns false when the index is out of range.
+			removeImageByIndex: function(index) {
+				if (index < 0 || index >= this.data.length)
+					return false;
+				
+				var imageData = this.data[index];
+				if (!imageData)
+					return false;
+				
+				this.removeImage(imageData);
+				
+				return true;
+			},
+
+			// Convenience method that simply calls the global removeImageByHash method.
+			removeImageByHash: function(hash) {
+				return $.galleriffic.removeImageByHash(hash, this);
+			},
+
+			// Removes an image from the gallery.
+			removeImage: function(imageData) {
+				var index = imageData.index;
+				
+				// Remove the image from the gallery data array
+				this.data.splice(index, 1);
+				
+				// Remove the global registration
+				delete allImages[''+imageData.hash];
+				
+				// Remove the image's list item from the DOM
+				this.updateThumbs(function() {
+					var $li = gallery.find('ul.thumbs')
+						.children(':eq('+index+')')
+						.remove();
+
+					if (gallery.onImageRemoved)
+						gallery.onImageRemoved(imageData, $li);
+				});
+
+				// Update each image objects index value
+				this.updateIndices(index);
+
+				return this;
+			},
+
+			// Updates the index values of the each of the images in the gallery after the specified index
+			updateIndices: function(startIndex) {
+				for (i = startIndex; i < this.data.length; i++) {
+					this.data[i].index = i;
+				}
+				
 				return this;
 			},
 
@@ -214,7 +297,7 @@
 
 			// Recursive function that performs the image preloading
 			// @param {Integer} startIndex The index of the first image the current preloader started on.
-			// @param {Integer} currentIndex THe index of the current image to preload.
+			// @param {Integer} currentIndex The index of the current image to preload.
 			preloadRecursive: function(startIndex, currentIndex) {
 				// Check if startIndex has been relocated
 				if (startIndex != this.preloadStartIndex) {
@@ -258,7 +341,7 @@
 			
 			// Called by preloadRecursive in order to preload the next image after the previous has loaded.
 			// @param {Integer} startIndex The index of the first image the current preloader started on.
-			// @param {Integer} currentIndex THe index of the current image to preload.
+			// @param {Integer} currentIndex The index of the current image to preload.
 			preloadNext: function(startIndex, currentIndex) {
 				var nextIndex = this.getNextIndex(currentIndex);
 				if (nextIndex == startIndex) {
@@ -273,7 +356,7 @@
 			},
 
 			// Safe way to get the next image index relative to the current image.
-			// If the current image is the last, returns 0/
+			// If the current image is the last, returns 0
 			getNextIndex: function(index) {
 				var nextIndex = index+1;
 				if (nextIndex >= this.data.length)
@@ -292,47 +375,49 @@
 
 			// Pauses the slideshow
 			pause: function() {
-				if (this.interval)
-					this.toggleSlideshow();
+				this.isSlideshowRunning = false;
+				if (this.slideshowTimeout) {
+					clearTimeout(this.slideshowTimeout);
+					this.slideshowTimeout = undefined;
+				}
+
+				if (this.$controlsContainer) {
+					this.$controlsContainer
+						.find('div.ss-controls a').removeClass().addClass('play')
+						.attr('title', this.playLinkText)
+						.attr('href', '#play')
+						.html(this.playLinkText);
+				}
 				
 				return this;
 			},
 
 			// Plays the slideshow
 			play: function() {
-				if (!this.interval)
-					this.toggleSlideshow();
-				
+				this.isSlideshowRunning = true;
+
+				if (this.$controlsContainer) {
+					this.$controlsContainer
+						.find('div.ss-controls a').removeClass().addClass('pause')
+						.attr('title', this.pauseLinkText)
+						.attr('href', '#pause')
+						.html(this.pauseLinkText);
+				}
+
+				if (!this.slideshowTimeout) {
+					var gallery = this;
+					this.slideshowTimeout = setTimeout(function() { gallery.ssAdvance(); }, this.delay);
+				}
+
 				return this;
 			},
 
 			// Toggles the state of the slideshow (playing/paused)
 			toggleSlideshow: function() {
-				if (this.interval) {
-					clearInterval(this.interval);
-					this.interval = 0;
-					
-					if (this.$controlsContainer) {
-						this.$controlsContainer
-							.find('div.ss-controls a').removeClass().addClass('play')
-							.attr('title', this.playLinkText)
-							.attr('href', '#play')
-							.html(this.playLinkText);
-					}
-				} else {
-					var gallery = this;
-					this.interval = setInterval(function() {
-						gallery.ssAdvance();
-					}, this.delay);
-					
-					if (this.$controlsContainer) {
-						this.$controlsContainer
-							.find('div.ss-controls a').removeClass().addClass('pause')
-							.attr('title', this.pauseLinkText)
-							.attr('href', '#pause')
-							.html(this.pauseLinkText);
-					}
-				}
+				if (this.isSlideshowRunning)
+					this.pause();
+				else
+					this.play();
 
 				return this;
 			},
@@ -341,7 +426,9 @@
 			// history plugin when history is enabled
 			// enableHistory is true
 			ssAdvance: function() {
-				this.next(true, true);
+				if (this.isSlideshowRunning)
+					this.next(true, true);
+
 				return this;
 			},
 
@@ -570,6 +657,13 @@
 					if (newCaption)
 						newCaption.fadeTo(this.getDefaultTransitionDuration(isSync), 1.0);
 				}
+				
+				if (this.isSlideshowRunning) {
+					if (this.slideshowTimeout)
+						clearTimeout(this.slideshowTimeout);
+
+					this.slideshowTimeout = setTimeout(function() { gallery.ssAdvance(); }, this.delay);
+				}
 
 				return this;
 			},
@@ -630,24 +724,27 @@
 				var needsPagination = this.data.length > this.numThumbs;
 
 				// Rebuild top pager
-				var $topPager = this.find('div.top');
-				if ($topPager.length == 0)
-					$topPager = this.prepend('<div class="top pagination"></div>').find('div.top');
+				if (this.enableTopPager) {
+					var $topPager = this.find('div.top');
+					if ($topPager.length == 0)
+						$topPager = this.prepend('<div class="top pagination"></div>').find('div.top');
+					else
+						$topPager.empty();
 
-				if (needsPagination && this.enableTopPager) {
-					$topPager.empty();
-					this.buildPager($topPager);
+					if (needsPagination)
+						this.buildPager($topPager);
 				}
 
 				// Rebuild bottom pager
-				if (needsPagination && this.enableBottomPager) {
+				if (this.enableBottomPager) {
 					var $bottomPager = this.find('div.bottom');
 					if ($bottomPager.length == 0)
 						$bottomPager = this.append('<div class="bottom pagination"></div>').find('div.bottom');
 					else
 						$bottomPager.empty();
 
-					this.buildPager($bottomPager);
+					if (needsPagination)
+						this.buildPager($bottomPager);
 				}
 
 				var page = this.getCurrentPage();
@@ -765,11 +862,6 @@
 
 		// Now initialize the gallery
 		$.extend(this, defaults, settings);
-
-		if (this.interval)
-			clearInterval(this.interval);
-
-		this.interval = 0;
 		
 		// Verify the history plugin is available
 		if (this.enableHistory && !$.historyInit)
@@ -839,7 +931,7 @@
 
 		// Auto start the slideshow
 		if (this.autoStart)
-			setTimeout(function() { gallery.play(); }, this.delay);
+			this.play();
 
 		// Kickoff Image Preloader after 1 second
 		setTimeout(function() { gallery.preloadInit(); }, 1000);

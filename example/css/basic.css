@@ -38,6 +38,7 @@ h2 {
 pre {
 	font-size: 1.2em;
 	line-height: 1.2em;
+	overflow-x: auto;
 }
 div#page {
 	width: 900px;

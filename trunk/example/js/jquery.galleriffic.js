@@ -83,6 +83,7 @@
 		nextPageLinkText:          'Next &rsaquo;',
 		prevPageLinkText:          '&lsaquo; Prev',
 		enableHistory:             false,
+		enableKeyboardNavigation:  true,
 		autoStart:                 false,
 		syncTransitions:           false,
 		defaultTransitionDuration: 1000,
@@ -427,37 +428,37 @@
 			// enableHistory is true
 			ssAdvance: function() {
 				if (this.isSlideshowRunning)
-					this.next(true, true);
+					this.next(true);
 
 				return this;
 			},
 
 			// Advances the gallery to the next image.
 			// @param {Boolean} dontPause Specifies whether to pause the slideshow.
-			// @param {Boolean} respectHistory Specifies whether to delegate navigation to the history plugin when history is enabled.  
-			next: function(dontPause, respectHisory) {
-				this.gotoIndex(this.getNextIndex(this.currentImage.index), dontPause, respectHisory);
+			// @param {Boolean} bypassHistory Specifies whether to delegate navigation to the history plugin when history is enabled.  
+			next: function(dontPause, bypassHistory) {
+				this.gotoIndex(this.getNextIndex(this.currentImage.index), dontPause, bypassHistory);
 				return this;
 			},
 
 			// Navigates to the previous image in the gallery.
 			// @param {Boolean} dontPause Specifies whether to pause the slideshow.
-			// @param {Boolean} respectHistory Specifies whether to delegate navigation to the history plugin when history is enabled.
-			previous: function(dontPause, respectHisory) {
-				this.gotoIndex(this.getPrevIndex(this.currentImage.index), dontPause, respectHisory);
+			// @param {Boolean} bypassHistory Specifies whether to delegate navigation to the history plugin when history is enabled.
+			previous: function(dontPause, bypassHistory) {
+				this.gotoIndex(this.getPrevIndex(this.currentImage.index), dontPause, bypassHistory);
 				return this;
 			},
 
 			// Navigates to the next page in the gallery.
 			// @param {Boolean} dontPause Specifies whether to pause the slideshow.
-			// @param {Boolean} respectHistory Specifies whether to delegate navigation to the history plugin when history is enabled.
-			nextPage: function(dontPause, respectHisory) {
+			// @param {Boolean} bypassHistory Specifies whether to delegate navigation to the history plugin when history is enabled.
+			nextPage: function(dontPause, bypassHistory) {
 				var page = this.getCurrentPage();
 				var lastPage = this.getNumPages() - 1;
 				if (page < lastPage) {
 					var startIndex = page * this.numThumbs;
 					var nextPage = startIndex + this.numThumbs;
-					this.gotoIndex(nextPage, dontPause, respectHisory);
+					this.gotoIndex(nextPage, dontPause, bypassHistory);
 				}
 
 				return this;
@@ -465,13 +466,13 @@
 
 			// Navigates to the previous page in the gallery.
 			// @param {Boolean} dontPause Specifies whether to pause the slideshow.
-			// @param {Boolean} respectHistory Specifies whether to delegate navigation to the history plugin when history is enabled.
-			previousPage: function(dontPause, respectHisory) {
+			// @param {Boolean} bypassHistory Specifies whether to delegate navigation to the history plugin when history is enabled.
+			previousPage: function(dontPause, bypassHistory) {
 				var page = this.getCurrentPage();
 				if (page > 0) {
 					var startIndex = page * this.numThumbs;
 					var prevPage = startIndex - this.numThumbs;				
-					this.gotoIndex(prevPage, dontPause, respectHisory);
+					this.gotoIndex(prevPage, dontPause, bypassHistory);
 				}
 				
 				return this;
@@ -480,8 +481,8 @@
 			// Navigates to the image at the specified index in the gallery
 			// @param {Integer} index The index of the image in the gallery to display.
 			// @param {Boolean} dontPause Specifies whether to pause the slideshow.
-			// @param {Boolean} respectHistory Specifies whether to delegate navigation to the history plugin when history is enabled.
-			gotoIndex: function(index, dontPause, respectHistory) {
+			// @param {Boolean} bypassHistory Specifies whether to delegate navigation to the history plugin when history is enabled.
+			gotoIndex: function(index, dontPause, bypassHistory) {
 				if (!dontPause)
 					this.pause();
 				
@@ -490,7 +491,7 @@
 				
 				var imageData = this.data[index];
 				
-				if (respectHistory && this.enableHistory)
+				if (!bypassHistory && this.enableHistory)
 					$.historyLoad(String(imageData.hash));  // At the moment, historyLoad only accepts string arguments
 				else
 					this.gotoImage(imageData);
@@ -928,6 +929,35 @@
 		// Setup gallery to show the first image
 		if (initFirstImage)
 			this.gotoIndex(0);
+
+		// Setup Keyboard Navigation
+		if (this.enableKeyboardNavigation) {
+			$(document).keydown(function(e) {
+				var key = e.charCode ? e.charCode : e.keyCode ? e.keyCode : 0;
+				switch(key) {
+					case 32: // space
+						gallery.next();
+						e.preventDefault();
+						break;
+					case 33: // Page Up
+						gallery.previousPage();
+						e.preventDefault();
+						break;
+					case 34: // Page Down
+						gallery.nextPage();
+						e.preventDefault();
+						break;
+					case 37: // left arrow
+						gallery.previous();
+						e.preventDefault();
+						break;
+					case 39: // right arrow
+						gallery.next();
+						e.preventDefault();
+						break;
+				}
+			});
+		}
 
 		// Auto start the slideshow
 		if (this.autoStart)

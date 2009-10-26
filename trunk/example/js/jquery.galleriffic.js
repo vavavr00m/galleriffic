@@ -928,7 +928,7 @@
 
 		// Setup gallery to show the first image
 		if (initFirstImage)
-			this.gotoIndex(0);
+			this.gotoIndex(0, false, true);
 
 		// Setup Keyboard Navigation
 		if (this.enableKeyboardNavigation) {
@@ -945,6 +945,14 @@
 						break;
 					case 34: // Page Down
 						gallery.nextPage();
+						e.preventDefault();
+						break;
+					case 35: // End
+						gallery.gotoIndex(gallery.data.length-1);
+						e.preventDefault();
+						break;
+					case 36: // Home
+						gallery.gotoIndex(0);
 						e.preventDefault();
 						break;
 					case 37: // left arrow

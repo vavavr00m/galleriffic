@@ -32,7 +32,7 @@ photos while conserving bandwidth.  I am not so great at spelling, and it was mu
 					<li>Slideshow (with optional auto-updating url bookmarks)</li>
 					<li>Keyboard navigation</li>
 					<li>Events that allow for adding your own custom transition effects</li>
-					<li>Simple API for controlling the gallery with custom controls</li>
+					<li>API for controlling the gallery with custom controls</li>
 					<li>Support for image captions</li>
 					<li>Flexible configuration</li>
 					<li>Graceful degradation when javascript is not available</li>
@@ -45,7 +45,7 @@ photos while conserving bandwidth.  I am not so great at spelling, and it was mu
 					<li><a href="example-2.html">Thumbnail rollover effects and slideshow crossfades</a></li>
 					<li><a href="example-3.html">Integration with history plugin</a></li>
 					<li><a href="example-4.html">Insert and remove images after initialization</a></li>
-					<li><a href="example-5.html">Custom layout with external controls</a></li>
+					<li><a href="example-5.html">Alternate layout using custom previous/next page controls</a></li>
 				</ul>
 
 				<h3>Usage</h3>
@@ -118,6 +118,7 @@ jQuery(document).ready(function($) {
 		nextPageLinkText:          'Next &amp;rsaquo;',
 		prevPageLinkText:          '&amp;lsaquo; Prev',
 		enableHistory:             false, // Specifies whether the url's hash and the browser's history cache should update when the current slideshow image changes
+		enableKeyboardNavigation:  true, // Specifies whether keyboard navigation is enabled
 		autoStart:                 false, // Specifies whether the slideshow should be playing or paused when the page first loads
 		syncTransitions:           false, // Specifies whether the out and in transitions occur simultaneously or distinctly
 		defaultTransitionDuration: 1000, // If using the default transitions, specifies the duration of the transitions

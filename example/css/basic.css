@@ -21,19 +21,17 @@ p, li {
 }
 h1, h2 {
 	font-family: "Trebuchet MS", Verdana, sans-serif;
-	margin: 0;
+	margin: 0 0 10px 0;
+	letter-spacing:-1px;
 }
 h1 {
-	margin-bottom: 10px;
 	padding: 0;
-	font-size:3em;
+	font-size: 3em;
 	color: #333;
-	letter-spacing:-1px;
 }
 h2 {
 	padding-top: 10px;
 	font-size:2em;
-	letter-spacing:-1px;
 }
 pre {
 	font-size: 1.2em;

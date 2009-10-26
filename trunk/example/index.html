@@ -135,12 +135,22 @@ jQuery(document).ready(function($) {
 					</li>
 				</ol>
 
+				<h3>FAQ</h3>
+				<h4>Will Galleriffic generate the slide and thumbnail images automatically?</h4>
+				<p>I have been asked a lot if Galleriffic automatically generates the thumbnails and slides.  Galleriffic by itself does <strong>not</strong> do any image processiong or generation; however, there is a great tool that does: <a title="jAlbum" href="http://jalbum.net">jAlbum</a>.  I have created a <a title="Galleriffic jAlbum Skin" href="http://jalbum.net/skins/skin/Galleriffic">jAlbum skin</a> that I use myself for creating my personal galleries.  After installing jAlbum and the Galleriffic jAlbum skin, simply choose your source image directory and an output directory, click "Make Album", and wallah, you now have a complete html gallery with 3 different size versions of each image.</p>
+				<h4>How can I change the number of thumbnail columns?</h4>
+				<p>With the stylesheet used in these examples, each thumbnail is floated left, and thus as many thumbnails that will fit in the width of the column will be displayed.  If you want fewer or more columns, make the width of the navigation panel smaller or larger.  In all but the last example, I am setting the width using javascript with the following lines in the html page:
+<pre class="jush-js">
+	$('div.navigation').css({'width' : '300px', 'float' : 'left'});
+	$('div.content').css('display', 'block');
+</pre>
+
 				<h3>Download</h3>
 
 				Download latest (release 2.0):
 				<ul>
-					<li>Examples: <a href="galleriffic-2.0.zip">galleriffic-2.0.zip</a> ( ~70 kb )</li>
-					<li>Script only: <a href="js/jquery.galleriffic.js">jquery.galleriffic.js</a> ( ~20 kb )</li>
+					<li>Examples: <a href="galleriffic-2.0.zip">galleriffic-2.0.zip</a> ( ~135 kb )</li>
+					<li>Script only: <a href="js/jquery.galleriffic.js">jquery.galleriffic.js</a> ( ~32 kb )</li>
 				</ul>
 
 				<h3>Extras</h3>

@@ -16,7 +16,8 @@
 	<body>
 		<div id="page">
 			<div id="container">
-				<h1><a href="index.html">Galleriffic</a> &raquo; Integration with history plugin</h1>
+				<h1><a href="index.html">Galleriffic</a></h1>
+				<h2>Integration with history plugin</h2>
 
 				<!-- Start Advanced Gallery Html Containers -->
 				<div id="gallery" class="content">
@@ -24,11 +25,8 @@
 					<div class="slideshow-container">
 						<div id="loading" class="loader"></div>
 						<div id="slideshow" class="slideshow"></div>
-						<div id="caption" class="caption-container"></div>
 					</div>
-					<div id="captionToggle">
-						<a href="#toggleCaption" class="off" title="Show Caption">Show Caption</a>
-					</div>
+					<div id="caption" class="caption-container"></div>
 				</div>
 				<div id="thumbs" class="navigation">
 					<ul class="thumbs noscript">
@@ -361,23 +359,6 @@
 					fadeSpeed:         'fast',
 					exemptionSelector: '.selected'
 				});
-
-				// Enable toggling of the caption
-				var captionOpacity = 0.0;
-				$('#captionToggle a').click(function(e) {
-					var link = $(this);
-					
-					var isOff = link.hasClass('off');
-					var removeClass = isOff ? 'off' : 'on';
-					var addClass = isOff ? 'on' : 'off';
-					var linkText = isOff ? 'Hide Caption' : 'Show Caption';
-					captionOpacity = isOff ? 0.7 : 0.0;
-
-					link.removeClass(removeClass).addClass(addClass).text(linkText).attr('title', linkText);
-					$('#caption span.image-caption').fadeTo(1000, captionOpacity);
-					
-					e.preventDefault();
-				});
 				
 				// Initialize Advanced Galleriffic Gallery
 				var gallery = $('#thumbs').galleriffic({
@@ -404,32 +385,16 @@
 					syncTransitions:           true,
 					defaultTransitionDuration: 900,
 					onSlideChange:             function(prevIndex, nextIndex) {
-						$('#thumbs ul.thumbs').children()
+						// 'this' refers to the gallery, which is an extension of $('#thumbs')
+						this.find('ul.thumbs').children()
 							.eq(prevIndex).fadeTo('fast', onMouseOutOpacity).end()
 							.eq(nextIndex).fadeTo('fast', 1.0);
 					},
-					onTransitionOut:           function(slide, caption, isSync, callback) {
-						slide.fadeTo(this.getDefaultTransitionDuration(isSync), 0.0, callback);
-						caption.fadeTo(this.getDefaultTransitionDuration(isSync), 0.0);
-					},
-					onTransitionIn:            function(slide, caption, isSync) {
-						var duration = this.getDefaultTransitionDuration(isSync);
-						slide.fadeTo(duration, 1.0);
-						
-						// Position the caption at the bottom of the image and set its opacity
-						var slideImage = slide.find('img');
-						caption.width(slideImage.width())
-							.css({
-								'bottom' : Math.floor((slide.height() - slideImage.outerHeight()) / 2),
-								'left' : Math.floor((slide.width() - slideImage.width()) / 2) + slideImage.outerWidth() - slideImage.width()
-							})
-							.fadeTo(duration, captionOpacity);
-					},
 					onPageTransitionOut:       function(callback) {
-						$('#thumbs ul.thumbs').fadeTo('fast', 0.0, callback);
+						this.fadeTo('fast', 0.0, callback);
 					},
 					onPageTransitionIn:        function() {
-						$('#thumbs ul.thumbs').fadeTo('fast', 1.0);
+						this.fadeTo('fast', 1.0);
 					}
 				});
 

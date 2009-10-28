@@ -394,17 +394,21 @@
 					syncTransitions:           true,
 					defaultTransitionDuration: 900,
 					onSlideChange:             function(prevIndex, nextIndex) {
-						$('#thumbs ul.thumbs').children()
+						// 'this' refers to the gallery, which is an extension of $('#thumbs')
+						this.find('ul.thumbs').children()
 							.eq(prevIndex).fadeTo('fast', onMouseOutOpacity).end()
 							.eq(nextIndex).fadeTo('fast', 1.0);
 
-						this.$captionContainer.find('div.photo-index').html('Photo '+ (nextIndex+1) +' of '+ this.data.length);
-					},onPageTransitionOut:       function(callback) {
-						$('#thumbs ul.thumbs').fadeTo('fast', 0.0, callback);
+						// Update the photo index display
+						this.$captionContainer.find('div.photo-index')
+							.html('Photo '+ (nextIndex+1) +' of '+ this.data.length);
+					},
+					onPageTransitionOut:       function(callback) {
+						this.fadeTo('fast', 0.0, callback);
 					},
 					onPageTransitionIn:        function() {
-						var prevPageLink = $('div.navigation a.prev').css('visibility', 'hidden');
-						var nextPageLink = $('div.navigation a.next').css('visibility', 'hidden');
+						var prevPageLink = this.find('a.prev').css('visibility', 'hidden');
+						var nextPageLink = this.find('a.next').css('visibility', 'hidden');
 						
 						// Show appropriate next / prev page links
 						if (this.displayedPage > 0)
@@ -414,18 +418,18 @@
 						if (this.displayedPage < lastPage)
 							nextPageLink.css('visibility', 'visible');
 
-						$('#thumbs ul.thumbs').fadeTo('fast', 1.0);
+						this.fadeTo('fast', 1.0);
 					}
 				});
 
 				/**************** Event handlers for custom next / prev page links **********************/
 
-				$('div.navigation a.prev').click(function(e) {
+				gallery.find('a.prev').click(function(e) {
 					gallery.previousPage();
 					e.preventDefault();
 				});
 
-				$('div.navigation a.next').click(function(e) {
+				gallery.find('a.next').click(function(e) {
 					gallery.nextPage();
 					e.preventDefault();
 				});

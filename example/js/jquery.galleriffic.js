@@ -14,11 +14,11 @@
 
 	// Galleriffic static class
 	$.galleriffic = {
-		version: '2.0',
+		version: '2.0.1',
 
 		// Strips invalid characters and any leading # characters
 		normalizeHash: function(hash) {
-			return hash.replace(/\?.*$/, '').replace(/^#/, '');
+			return hash.replace(/^.*#/, '').replace(/\?.*$/, '');
 		},
 
 		getImage: function(hash) {

@@ -1,0 +1,5 @@
+Name: Galleriffic
+Version: 1.1
+Author: Trent Foley
+
+This is a JAlbum skin that wraps the jQuery galleriffic plugin.

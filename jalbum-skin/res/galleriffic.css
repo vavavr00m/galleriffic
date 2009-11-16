@@ -27,8 +27,6 @@ div.nav-controls {
 div.slideshow-container {
 	position: relative;
 	clear: both;
-	float: left;
-	/* height: 502px; */ /* This should be set to be at least the height of the largest image in the slideshow */
 }
 div.loader {
 	position: absolute;
@@ -37,11 +35,6 @@ div.loader {
 	background-image: url('images/loader.gif');
 	background-repeat: no-repeat;
 	background-position: center;
-	/* width: 550px; */
-	/* height: 502px; */ /* This should be set to be at least the height of the largest image in the slideshow */
-}
-div.slideshow {
-
 }
 div.slideshow span.image-wrapper {
 	display: block;
@@ -51,9 +44,6 @@ div.slideshow span.image-wrapper {
 }
 div.slideshow a.advance-link {
 	display: block;
-	/* width: 550px; */
-	/* height: 502px; */ /* This should be set to be at least the height of the largest image in the slideshow */
-	/* line-height: 502px; */ /* This should be set to be at least the height of the largest image in the slideshow */
 	text-align: center;
 }
 div.slideshow a.advance-link:hover,
@@ -64,13 +54,11 @@ div.slideshow a.advance-link:visited {
 div.slideshow a.advance-link:focus {
 	outline: none;
 }
-
 div.slideshow img {
 	/* vertical-align: middle; */
 	border: 1px solid #ccc;
 }
 div.caption-container {
-	float: right;
 	position: relative;
 	margin-top: 30px;
 }
@@ -83,21 +71,8 @@ span.image-caption {
 div.caption {
 	padding: 0 12px;
 }
-div.photo-index {
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	padding: 0 12px;
-}
-div.navigation-container {
-	float: left;
-	position: relative;
-	left: 50%;
-}
-div.navigation {
-	float: left;
-	position: relative;
-	left: -50%;
+div.download {
+	padding-top:12px;
 }
 div.navigation a.pageLink {
 	display: block;
@@ -144,9 +119,7 @@ ul.thumbs img {
 	display: block;
 }
 div.pagination {
-	clear: both;
-	position: relative;
-	left: -50%;
+	padding: 2px 0 2px 3px;
 }
 div.pagination a, div.pagination span.current, div.pagination span.ellipsis {
 	position: relative;
@@ -175,23 +148,19 @@ div.gallery-gutter {
 	clear: both;
 	padding-bottom: 20px;
 }
-
 #folders {
 	float: left;
 	position: relative;
 	left: 50%;
 }
-
 #folders ul.thumbs {
     position: relative;
 	left: -50%;
 }
-
 #folders ul.thumbs li {
 	position: relative;
 	display: block;
 	float: left;
-	/* height: 120px; */
 	margin: 10px 20px;
 	text-align: center;
 }

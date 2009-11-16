@@ -9,24 +9,16 @@ GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 
 ControlPanel ui = new ControlPanel() {
 	// Title and description
-    JTextField gKeywords   = new JTextField("",35);
-    JTextField copyright   = new JTextField("",35);
-	// JTextField albumDate  = new JTextField("A tagline or date range could go here");
-    // JTextArea  description = new JTextArea(12,35);
+	JTextField gKeywords   = new JTextField("",35);
+	JTextField copyright   = new JTextField("",35);
 
 	// Navigation
-    JTextField siteTitle    = new JTextField("My Cool Site",35);
-    JTextField linkHome = new JTextField("",35);
-    JTextField bcLevel1Label = new JTextField("",35);
-    JTextField bcLevel1Link = new JTextField("",35);
-    JTextField bcLevel2Label = new JTextField("",35);
-    JTextField bcLevel2Link = new JTextField("",35);
-
-	// Thumbnails
-    //JTextField numThumbs = new JTextField("",4);
-    // JCheckBox fixedShape = new JCheckBox("Crop thumbs to fixed shape", true);
-	// JCheckBox enableTopPager = new JCheckBox("Enable Top Pager", true);
-	// JCheckBox enableBottomPager = new JCheckBox("Enable Bottom Pager", true);
+	JTextField siteTitle    = new JTextField("My Cool Site",35);
+	JTextField linkHome = new JTextField("",35);
+	JTextField bcLevel1Label = new JTextField("",35);
+	JTextField bcLevel1Link = new JTextField("",35);
+	JTextField bcLevel2Label = new JTextField("",35);
+	JTextField bcLevel2Link = new JTextField("",35);
 
 	// Labels
 	JTextField playLinkText = new JTextField("Play", 20);
@@ -37,15 +29,17 @@ ControlPanel ui = new ControlPanel() {
 	JTextField prevPageLinkText = new JTextField("&lsaquo; Prev", 20);
 
 	// Behavior
-	JCheckBox paginateThumbs = new JCheckBox("Paginate thumbnails", true);
+	JComboBox thumbsLocation = new JComboBox(new Object[]{ "top", "left", "bottom", "right" });
+	JCheckBox enableTopPager = new JCheckBox("Enable Top Pager", true);
+	JCheckBox enableBottomPager = new JCheckBox("Enable Bottom Pager", true);
+	JTextField numThumbs = new JTextField("",4);
 	JCheckBox renderSSControls = new JCheckBox("Enable Slideshow", true);
-    JTextField delay = new JTextField("3000", 4);
+	JTextField delay = new JTextField("3000", 4);
 	JCheckBox autoStart = new JCheckBox("Auto Start Slideshow", false);
 	JTextField preloadAhead = new JTextField("10", 2);
 	JCheckBox enableHistory = new JCheckBox("Enable Browser History", true);
 	JTextField inactiveThumbOpacity = new JTextField("0.67", 5);
-	// JCheckBox enableFadeTransitions = new JCheckBox("Enable Fade Transitions", true);
-    JCheckBox enableDownload = new JCheckBox("Enable Download", false);
+	JCheckBox enableDownload = new JCheckBox("Enable Download", false);
 
 	// EXIF
 	JCheckBox showExif = new JCheckBox("Show EXIF information", false);
@@ -82,33 +76,31 @@ ControlPanel ui = new ControlPanel() {
   generalPanel.add("br", new JLabel("Copyright"));
   generalPanel.add("tab hfill", ui.copyright);
 
-  // Thumbnails
-  //ControlPanel thumbsPanel = new ControlPanel();
-  //thumbsPanel.add(new JLabel("Number of Thumbnails per Page"));
-  //thumbsPanel.add("tab", ui.numThumbs);
-  //thumbsPanel.add("br", ui.fixedShape);
-  //thumbsPanel.add("br", ui.enableTopPager);
-  //thumbsPanel.add("br", ui.enableBottomPager);
-
   // Behavior
   ControlPanel behavior = new ControlPanel();
-	behavior.add(ui.renderSSControls);
 	ControlPanel thumbnails = new ControlPanel("Thumbnails");
-	  thumbnails.add(ui.paginateThumbs);
+	  thumbnails.add(new JLabel("Thumbnails Location"));
+	  thumbnails.add("tab", ui.thumbsLocation);
+	  ControlPanel leftRightThumbnails = new ControlPanel("Settings applicable only for left or right positioned thumbnails");
+	    leftRightThumbnails.add(ui.enableTopPager);
+         leftRightThumbnails.add("br", ui.enableBottomPager);
+         leftRightThumbnails.add("br", ui.numThumbs);
+         leftRightThumbnails.add("tab", new JLabel("Number of Thumbnails per Page"));
+       thumbnails.add("br hfill vfill", leftRightThumbnails);
     behavior.add("br hfill vfill", thumbnails);
     ControlPanel slideshow = new ControlPanel("Slideshow");
-      slideshow.add(new JLabel("Speed of the Slide Show Transition (1000 = 1 second)"));
-      slideshow.add("tab", ui.delay);
-      slideshow.add("br", ui.autoStart);
+      slideshow.add(ui.renderSSControls);
+      slideshow.add("tab", ui.autoStart);
+      slideshow.add("br", ui.delay);
+      slideshow.add("tab", new JLabel("Speed of the Slide Show Transition (1000 = 1 second)"));
     behavior.add("br hfill vfill", slideshow);
     ControlPanel advanced = new ControlPanel("Advanced");
-      advanced.add(new JLabel("# of Images to Preload Ahead of the Current Image"));
-      advanced.add("tab", ui.preloadAhead);
-      advanced.add("br", ui.enableHistory);
-      advanced.add("br", new JLabel("Inactive Thumbnail Opacity (between 0 and 1)"));
-      advanced.add("tab", ui.inactiveThumbOpacity);
-      // advanced.add("br", ui.enableFadeTransitions);
-      advanced.add("br", ui.enableDownload);
+      advanced.add(ui.preloadAhead);
+      advanced.add("tab", new JLabel("# of Images to Preload Ahead of the Current Image"));
+      advanced.add("tab", ui.enableHistory);
+      advanced.add("br", ui.inactiveThumbOpacity);
+      advanced.add("tab", new JLabel("Inactive Thumbnail Opacity (between 0 and 1)"));
+      advanced.add("tab", ui.enableDownload);
     behavior.add("br hfill vfill", advanced);
 
   // Labels

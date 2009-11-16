@@ -1,19 +1,19 @@
 # Galleriffic
 # http://www.twospy.com/galleriffic
 mediaRSS=false
-style=white.css
+style=black.css
 imageSize=544x544
 highQualityScaling=true
 slides=false
 imageOrdering=OrderByName
 imageLinking=LinkOriginalsViaScaled
 sameDirectory=false
-widgetInjection=false
+widgetInjection=true
 class=class se.datadosen.jalbum.AlbumBean
 cols=1
 rows=1200
 subdirs=true
-thumbSize=75x75
+thumbSize=90x90
 qualityPercent=85
 urlEncode=false
 directoriesFirst=false
@@ -26,7 +26,7 @@ dateFormat=MMMM d, yyyy h\:mm a
 user.filter3=class\=FixedShapeFilter prescale thumbnails
 skin.numThumbs=18
 skin.fixedShape=true
-skin.enableTopPager=true
+skin.enableTopPager=false
 skin.enableBottomPager=true
 skin.renderSSControls=true
 skin.autoStart=false
@@ -34,3 +34,4 @@ skin.preloadAhead=10
 skin.enableHistory=true
 skin.inactiveThumbOpacity=0.67
 skin.enableDownload=false
+skin.thumbsLocation=top
